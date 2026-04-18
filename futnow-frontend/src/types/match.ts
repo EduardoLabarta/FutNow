@@ -24,6 +24,7 @@ export interface MatchParticipant {
   profiles: {
     name: string;
     avatar_id: number | null;
+    avatar_path: string | null;
   } | null;
 }
 

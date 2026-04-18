@@ -39,7 +39,8 @@ export const matchService = {
         user_id,
         profiles (
           name,
-          avatar_id
+          avatar_id,
+          avatar_path
         )
       `)
       .eq('match_id', matchId)

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { matchService } from '../services/matchService';
+import { supabase } from '../lib/supabase';
 import type { Match, MatchParticipant } from '../types/match';
 
 export default function MatchDetailPage() {
@@ -156,9 +157,17 @@ export default function MatchDetailPage() {
             <div className="flex-column gap-3 mt-4">
               {participants.map(p => (
                 <div key={p.id} className="flex-center" style={{ justifyContent: 'flex-start', gap: '16px', padding: '14px 20px', backgroundColor: 'rgba(39, 39, 42, 0.4)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
-                  <div className="flex-center font-semibold" style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: 'var(--primary-light)', color: 'var(--primary)', fontSize: '18px', border: '1px solid var(--primary)' }}>
-                    {p.profiles?.name.charAt(0).toUpperCase() || '?'}
-                  </div>
+                  {p.profiles?.avatar_path ? (
+                    <img 
+                      src={supabase.storage.from('avatars').getPublicUrl(p.profiles.avatar_path).data.publicUrl} 
+                      alt="Avatar" 
+                      style={{ width: '42px', height: '42px', borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--primary)' }} 
+                    />
+                  ) : (
+                    <div className="flex-center font-semibold" style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: 'var(--primary-light)', color: 'var(--primary)', fontSize: '18px', border: '1px solid var(--primary)' }}>
+                      {p.profiles?.name.charAt(0).toUpperCase() || '?'}
+                    </div>
+                  )}
                   <div style={{ flex: 1 }}>
                     <div className="font-semibold text-main" style={{ fontSize: '15px' }}>
                       {p.profiles?.name || 'Usuario Anónimo'}

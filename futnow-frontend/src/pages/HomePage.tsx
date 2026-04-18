@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { matchService } from '../services/matchService';
+import { supabase } from '../lib/supabase';
 import type { Match } from '../types/match';
 
 export default function HomePage() {
@@ -46,11 +47,24 @@ export default function HomePage() {
 
       {/* Snapshot Tarjeta de Perfil Rapida */}
       <div className="card flex-between mb-6" style={{ background: 'linear-gradient(to right, rgba(59,130,246,0.1), var(--card-bg))', borderColor: 'var(--border-color)', boxShadow: 'var(--shadow-glow)' }}>
-        <div className="flex-column gap-2">
-          <h2 style={{ margin: 0, fontSize: '20px', color: 'var(--primary)' }}>Hola, {profile?.name || user?.email}</h2>
-          <div className="flex-center" style={{ justifyContent: 'flex-start', gap: '12px', fontSize: '14px', color: 'var(--text-muted)' }}>
-            <span className={profile?.status === 'ACTIVE' ? 'badge badge-success' : 'badge badge-danger'}>{profile?.status}</span>
-            <span>Posición: <strong className="text-main">{profile?.preferred_position || 'No definida'}</strong></span>
+        <div className="flex-center" style={{ gap: '16px', justifyContent: 'flex-start' }}>
+          {profile?.avatar_path ? (
+            <img 
+              src={supabase.storage.from('avatars').getPublicUrl(profile.avatar_path).data.publicUrl} 
+              alt="Avatar" 
+              style={{ width: '56px', height: '56px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--primary)' }} 
+            />
+          ) : (
+            <div className="flex-center" style={{ width: '56px', height: '56px', borderRadius: '50%', backgroundColor: 'var(--secondary)', color: 'var(--text-main)', fontSize: '20px', fontWeight: 'bold' }}>
+              {(profile?.name || user?.email || '?')[0].toUpperCase()}
+            </div>
+          )}
+          <div className="flex-column gap-1">
+            <h2 style={{ margin: 0, fontSize: '20px', color: 'var(--primary)' }}>Hola, {profile?.name || user?.email}</h2>
+            <div className="flex-center" style={{ justifyContent: 'flex-start', gap: '12px', fontSize: '14px', color: 'var(--text-muted)' }}>
+              <span className={profile?.status === 'ACTIVE' ? 'badge badge-success' : 'badge badge-danger'}>{profile?.status}</span>
+              <span>Posición: <strong className="text-main">{profile?.preferred_position || 'No definida'}</strong></span>
+            </div>
           </div>
         </div>
         <button className="btn btn-secondary" onClick={() => navigate('/profile')}>Mi Perfil</button>

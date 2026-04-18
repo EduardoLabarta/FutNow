@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/authService';
+import logo from '../assets/logo.png';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -42,8 +43,8 @@ export default function RegisterPage() {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <div className="flex-center mb-6" style={{ gap: '12px' }}>
-          <h1 style={{ margin: 0, fontSize: '32px', letterSpacing: '-0.05em' }}>FutNow</h1>
+        <div className="flex-center mb-6">
+          <img src={logo} alt="FutNow" style={{ width: '180px', height: 'auto' }} />
         </div>
         
         <h2 className="text-muted text-center mb-6" style={{ fontSize: '16px', fontWeight: 500 }}>Crea tu cuenta de deportista</h2>

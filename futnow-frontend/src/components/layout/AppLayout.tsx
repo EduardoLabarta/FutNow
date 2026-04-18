@@ -1,5 +1,6 @@
 import { Outlet, useNavigate, NavLink, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import logo from '../../assets/logo.png';
 
 export const AppLayout = () => {
   const { user, profile, signOut } = useAuth();
@@ -13,8 +14,8 @@ export const AppLayout = () => {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <header className="header-layout">
-        <Link to="/" className="header-brand" style={{ color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          FutNow
+        <Link to="/" className="header-brand" style={{ display: 'flex', alignItems: 'center' }}>
+          <img src={logo} alt="FutNow" style={{ height: '45px', width: 'auto' }} />
         </Link>
         
         {user && profile && (

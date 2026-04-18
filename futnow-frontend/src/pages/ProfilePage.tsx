@@ -128,7 +128,7 @@ export default function ProfilePage() {
              <h3 className="card-title">Avatar Activo</h3>
              <div className="flex-center mt-4">
                {displayImage ? (
-                 <img src={displayImage} alt="Avatar" style={{ width: '120px', height: '120px', borderRadius: '50%', objectFit: 'cover', boxShadow: 'var(--shadow-md)', border: '4px solid white' }} />
+                 <img src={displayImage} alt="Avatar" style={{ width: '120px', height: '120px', borderRadius: '50%', objectFit: 'cover', boxShadow: 'var(--shadow-glow)', border: '2px solid var(--primary)' }} />
                ) : (
                  <div className="flex-center" style={{ width: '120px', height: '120px', borderRadius: '50%', backgroundColor: 'rgba(39, 39, 42, 0.5)', color: 'var(--text-muted)', fontSize: '40px', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)' }}>
                    👤

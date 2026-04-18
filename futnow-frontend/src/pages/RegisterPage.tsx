@@ -32,12 +32,12 @@ export default function RegisterPage() {
 
   return (
     <div className="auth-container">
-      <div className="auth-card" style={{ borderTop: '4px solid var(--primary)' }}>
-        <div className="flex-center mb-2" style={{ gap: '10px' }}>
-          <div style={{ width: '28px', height: '28px', backgroundColor: 'var(--primary)', borderRadius: '6px' }}></div>
-          <h1 style={{ margin: 0, fontSize: '28px' }}>FutNow</h1>
+      <div className="auth-card">
+        <div className="flex-center mb-6" style={{ gap: '12px' }}>
+          <h1 style={{ margin: 0, fontSize: '32px', letterSpacing: '-0.05em' }}>FutNow</h1>
         </div>
-        <h2 className="text-muted font-semibold text-center mb-6" style={{ fontSize: '15px' }}>Crear una cuenta oficial</h2>
+        
+        <h2 className="text-muted text-center mb-6" style={{ fontSize: '16px', fontWeight: 500 }}>Crea tu cuenta de deportista</h2>
         
         {message && (
            <div className={`alert ${isSuccess ? 'alert-success' : 'alert-danger'}`}>
@@ -45,32 +45,53 @@ export default function RegisterPage() {
            </div>
         )}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="flex-column gap-4">
           <div className="form-group">
             <label>Nombre Público</label>
-            <input className="form-control" type="text" placeholder="Ej: El Mago" required value={name} onChange={e => setName(e.target.value)} />
+            <input 
+              className="form-control" 
+              type="text" 
+              placeholder="Ej: El Mago" 
+              required 
+              value={name} 
+              onChange={e => setName(e.target.value)} 
+            />
           </div>
           <div className="form-group">
             <label>Correo Electrónico</label>
-            <input className="form-control" type="email" placeholder="jugador@ejemplo.com" required value={email} onChange={e => setEmail(e.target.value)} />
+            <input 
+              className="form-control" 
+              type="email" 
+              placeholder="tu@email.com" 
+              required 
+              value={email} 
+              onChange={e => setEmail(e.target.value)} 
+            />
           </div>
           <div className="form-group">
             <label>Contraseña</label>
-            <input className="form-control" type="password" placeholder="Mínimo 6 caracteres" required value={password} onChange={e => setPassword(e.target.value)} />
+            <input 
+              className="form-control" 
+              type="password" 
+              placeholder="Mínimo 6 caracteres" 
+              required 
+              value={password} 
+              onChange={e => setPassword(e.target.value)} 
+            />
           </div>
-          <button type="submit" className="btn btn-primary btn-block" style={{ marginTop: '12px' }}>
+          <button type="submit" className="btn btn-primary btn-block mt-2">
              Completar Registro
           </button>
         </form>
         
-        <div style={{ display: 'flex', alignItems: 'center', margin: '32px 0' }}>
-          <div style={{ flex: 1, borderTop: '1px solid var(--border-color)' }}></div>
-          <span style={{ padding: '0 12px', color: 'var(--text-muted)', fontSize: '13px' }}>¿Ya tienes cuenta?</span>
-          <div style={{ flex: 1, borderTop: '1px solid var(--border-color)' }}></div>
+        <div className="flex-center" style={{ margin: '32px 0', gap: '12px' }}>
+          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color)' }}></div>
+          <span style={{ color: 'var(--text-light)', fontSize: '13px' }}>¿Ya tienes cuenta?</span>
+          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color)' }}></div>
         </div>
         
         <button type="button" onClick={() => navigate('/login')} className="btn btn-secondary btn-block">
-           Volver a Iniciar Sesión
+           Volver al inicio de sesión
         </button>
       </div>
     </div>

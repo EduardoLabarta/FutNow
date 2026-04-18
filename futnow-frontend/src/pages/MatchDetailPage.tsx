@@ -106,38 +106,38 @@ export default function MatchDetailPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
         
         {/* Detalles del Partido */}
-        <div className="card" style={{ borderTop: match.status === 'OPEN' ? '6px solid var(--success)' : '6px solid var(--danger)', margin: 0 }}>
-          <h3 className="card-title text-main">Información General</h3>
+        <div className="card" style={{ borderTop: match.status === 'OPEN' ? '6px solid var(--success)' : '6px solid var(--danger)', margin: 0, boxShadow: match.status === 'OPEN' ? '0 0 20px rgba(16, 185, 129, 0.1)' : '0 0 20px rgba(244, 63, 94, 0.1)' }}>
+          <h3 className="card-title">Información General</h3>
           
           <div className="flex-column gap-6 mt-4">
             <div>
-              <strong className="text-muted text-sm block mb-2">Fecha Programada</strong>
-              <div className="text-main font-semibold" style={{ fontSize: '16px' }}>
+              <strong className="text-muted text-sm block mb-2">Fecha y Hora</strong>
+              <div className="text-main font-semibold" style={{ fontSize: '18px' }}>
                 {new Date(match.scheduled_at).toLocaleString(undefined, { dateStyle: 'full', timeStyle: 'short' })}
               </div>
             </div>
 
             <div>
-              <strong className="text-muted text-sm block mb-2">Sede / Instalación</strong>
-              <div className="text-main font-semibold" style={{ fontSize: '16px' }}>{match.location}</div>
+              <strong className="text-muted text-sm block mb-2">Lugar / Sede</strong>
+              <div className="text-main font-semibold" style={{ fontSize: '18px' }}>{match.location}</div>
             </div>
 
             <div>
-              <strong className="text-muted text-sm block mb-2">Estado de Aforo</strong>
+              <strong className="text-muted text-sm block mb-2">Aforo del Encuentro</strong>
               <div className="flex-center" style={{ justifyContent: 'flex-start', gap: '12px' }}>
-                <span style={{ fontSize: '16px', color: isFull ? 'var(--danger)' : 'var(--text-main)', fontWeight: isFull ? '600' : 'normal' }}>
-                  {participants.length} / {match.max_players} plazas ocupadas
+                <span style={{ fontSize: '18px', color: isFull ? 'var(--danger)' : 'var(--text-main)', fontWeight: '600' }}>
+                  {participants.length} / {match.max_players} jugadores confirmados
                 </span>
-                {isFull && <span className="badge badge-danger">LLENO</span>}
+                {isFull && <span className="badge badge-danger">COMPLETO</span>}
               </div>
             </div>
             
             {!isSuspended && (
                <div className="mt-4 pt-4" style={{ borderTop: '1px solid var(--border-color)' }}>
-                 <div className="flex-column gap-3">
-                   {canJoin && <button disabled={actionLoading} onClick={() => void handleJoin()} className="btn btn-primary btn-block">Unirse al Partido</button>}
-                   {canLeave && <button disabled={actionLoading} onClick={() => void handleLeave()} className="btn btn-secondary btn-block">Salir del Partido</button>}
-                   {canAdminCancel && match.status === 'OPEN' && <button disabled={actionLoading} onClick={() => void handleCancel()} className="btn btn-danger btn-block mt-2">Cancelar Partido</button>}
+                 <div className="flex-column gap-4">
+                   {canJoin && <button disabled={actionLoading} onClick={() => void handleJoin()} className="btn btn-primary btn-block">Confirmar Asistencia</button>}
+                   {canLeave && <button disabled={actionLoading} onClick={() => void handleLeave()} className="btn btn-secondary btn-block">Anular mi Plaza</button>}
+                   {canAdminCancel && match.status === 'OPEN' && <button disabled={actionLoading} onClick={() => void handleCancel()} className="btn btn-danger btn-block mt-2">Suspender Partido</button>}
                  </div>
                </div>
             )}
@@ -155,15 +155,15 @@ export default function MatchDetailPage() {
           ) : (
             <div className="flex-column gap-3 mt-4">
               {participants.map(p => (
-                <div key={p.id} className="flex-center" style={{ justifyContent: 'flex-start', gap: '16px', padding: '12px 16px', backgroundColor: 'var(--bg-color)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
-                  <div className="flex-center font-semibold" style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'var(--primary-light)', color: 'var(--primary)', fontSize: '18px' }}>
+                <div key={p.id} className="flex-center" style={{ justifyContent: 'flex-start', gap: '16px', padding: '14px 20px', backgroundColor: 'rgba(39, 39, 42, 0.4)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                  <div className="flex-center font-semibold" style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: 'var(--primary-light)', color: 'var(--primary)', fontSize: '18px', border: '1px solid var(--primary)' }}>
                     {p.profiles?.name.charAt(0).toUpperCase() || '?'}
                   </div>
-                  <div>
-                    <div className="font-semibold text-main">
+                  <div style={{ flex: 1 }}>
+                    <div className="font-semibold text-main" style={{ fontSize: '15px' }}>
                       {p.profiles?.name || 'Usuario Anónimo'}
                     </div>
-                    {p.user_id === user?.id && <div className="text-sm" style={{ color: 'var(--primary)' }}>Tú mismo</div>}
+                    {p.user_id === user?.id && <div className="text-sm" style={{ color: 'var(--primary)', fontWeight: 500 }}>Tú (Confirmado)</div>}
                   </div>
                 </div>
               ))}

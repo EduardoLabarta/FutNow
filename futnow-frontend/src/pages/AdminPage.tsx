@@ -46,18 +46,25 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="page-container" style={{ maxWidth: '1000px', margin: '0 auto' }}>
-      <h2 className="text-primary mb-2">Consola Central de Administración</h2>
-      <p className="text-muted mb-6">Gestión de usuarios y supervisión general de partidos.</p>
+    <div className="page-container" style={{ maxWidth: '1100px', margin: '0 auto' }}>
+      <div className="flex-between mb-6">
+        <div>
+          <h2 className="text-main" style={{ fontSize: '32px', marginBottom: '4px' }}>Centro de Mando</h2>
+          <p className="text-muted">Supervisión técnica de la plataforma FutNow.</p>
+        </div>
+        <button className="btn btn-secondary" onClick={() => void loadData()} disabled={loading}>
+          Sincronizar Datos
+        </button>
+      </div>
 
       {errorMsg && <div className="alert alert-danger mb-6">{errorMsg}</div>}
 
       {loading ? <div className="loading-state">Conectando al panel de control remoto...</div> : (
         <div className="flex-column gap-6">
           
-          <section className="card" style={{ padding: 0, overflow: 'hidden', margin: 0, borderTop: '4px solid var(--warning)' }}>
-            <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)' }}>
-              <h3 style={{ margin: 0, fontSize: '18px' }}>Moderación de Usuarios</h3>
+          <section className="card" style={{ padding: 0, overflow: 'hidden', margin: 0, borderTop: '4px solid var(--warning)', boxShadow: '0 0 20px rgba(245, 165, 36, 0.05)' }}>
+            <div style={{ padding: '24px', borderBottom: '1px solid var(--border-color)', backgroundColor: 'rgba(39, 39, 42, 0.3)' }}>
+              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>Moderación de Usuarios</h3>
             </div>
             <div className="table-responsive">
               <table className="table">
@@ -103,9 +110,9 @@ export default function AdminPage() {
             </div>
           </section>
 
-          <section className="card" style={{ padding: 0, overflow: 'hidden', margin: 0, borderTop: '4px solid var(--primary)' }}>
-            <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)' }}>
-              <h3 style={{ margin: 0, fontSize: '18px' }}>Supervisión de Partidos</h3>
+          <section className="card" style={{ padding: 0, overflow: 'hidden', margin: 0, borderTop: '4px solid var(--primary)', boxShadow: '0 0 20px rgba(59, 130, 246, 0.05)' }}>
+            <div style={{ padding: '24px', borderBottom: '1px solid var(--border-color)', backgroundColor: 'rgba(39, 39, 42, 0.3)' }}>
+              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>Supervisión de Partidos</h3>
             </div>
             <div className="table-responsive">
               <table className="table">

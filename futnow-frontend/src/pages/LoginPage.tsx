@@ -23,37 +23,51 @@ export default function LoginPage() {
 
   return (
     <div className="auth-container">
-      <div className="auth-card" style={{ borderTop: '4px solid var(--primary)' }}>
-        <div className="flex-center mb-2" style={{ gap: '10px' }}>
-          <div style={{ width: '28px', height: '28px', backgroundColor: 'var(--primary)', borderRadius: '6px' }}></div>
-          <h1 style={{ margin: 0, fontSize: '28px' }}>FutNow</h1>
+      <div className="auth-card">
+        <div className="flex-center mb-6" style={{ gap: '12px' }}>
+          <h1 style={{ margin: 0, fontSize: '32px', letterSpacing: '-0.05em' }}>FutNow</h1>
         </div>
-        <h2 className="text-muted font-semibold text-center mb-6" style={{ fontSize: '15px' }}>Acceso a tu cuenta deportiva</h2>
+        
+        <h2 className="text-muted text-center mb-6" style={{ fontSize: '16px', fontWeight: 500 }}>Inicia sesión en tu cuenta deportiva</h2>
         
         {errorMsg && <div className="alert alert-danger">{errorMsg}</div>}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="flex-column gap-4">
           <div className="form-group">
             <label>Correo Electrónico</label>
-            <input className="form-control" type="email" placeholder="jugador@ejemplo.com" required value={email} onChange={e => setEmail(e.target.value)} />
+            <input 
+              className="form-control" 
+              type="email" 
+              placeholder="tu@email.com" 
+              required 
+              value={email} 
+              onChange={e => setEmail(e.target.value)} 
+            />
           </div>
           <div className="form-group">
             <label>Contraseña</label>
-            <input className="form-control" type="password" placeholder="••••••••" required value={password} onChange={e => setPassword(e.target.value)} />
+            <input 
+              className="form-control" 
+              type="password" 
+              placeholder="••••••••" 
+              required 
+              value={password} 
+              onChange={e => setPassword(e.target.value)} 
+            />
           </div>
-          <button type="submit" className="btn btn-primary btn-block" style={{ marginTop: '12px' }}>
-             Iniciar Sesión
+          <button type="submit" className="btn btn-primary btn-block mt-2">
+             Entrar al Sistema
           </button>
         </form>
         
-        <div style={{ display: 'flex', alignItems: 'center', margin: '32px 0' }}>
-          <div style={{ flex: 1, borderTop: '1px solid var(--border-color)' }}></div>
-          <span style={{ padding: '0 12px', color: 'var(--text-muted)', fontSize: '13px' }}>¿No tienes cuenta?</span>
-          <div style={{ flex: 1, borderTop: '1px solid var(--border-color)' }}></div>
+        <div className="flex-center" style={{ margin: '32px 0', gap: '12px' }}>
+          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color)' }}></div>
+          <span style={{ color: 'var(--text-light)', fontSize: '13px' }}>¿Eres nuevo?</span>
+          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color)' }}></div>
         </div>
         
         <button type="button" onClick={() => navigate('/register')} className="btn btn-secondary btn-block">
-          Crear una cuenta nueva
+          Crear cuenta oficial
         </button>
       </div>
     </div>

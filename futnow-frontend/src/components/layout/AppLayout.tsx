@@ -14,7 +14,6 @@ export const AppLayout = () => {
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <header className="header-layout">
         <Link to="/" className="header-brand" style={{ color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '24px', height: '24px', backgroundColor: 'var(--primary)', borderRadius: '4px' }}></div>
           FutNow
         </Link>
         

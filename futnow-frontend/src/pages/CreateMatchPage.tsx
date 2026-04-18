@@ -49,40 +49,68 @@ export default function CreateMatchPage() {
   };
 
   return (
-    <div className="page-container flex-column flex-center">
-      <div className="card" style={{ width: '100%', maxWidth: '600px' }}>
-        <h2 className="mb-2">Nuevo Encuentro Deportivo</h2>
-        <p className="text-muted mb-6">Completa los datos para habilitar una nueva convocatoria.</p>
+    <div className="page-container flex-center" style={{ padding: '20px' }}>
+      <div className="card" style={{ width: '100%', maxWidth: '600px', padding: '40px' }}>
+        <h2 className="mb-2" style={{ fontSize: '28px' }}>Crear Nuevo Encuentro</h2>
+        <p className="text-muted mb-6">Configura los detalles técnicos para tu próxima convocatoria deportiva.</p>
 
         {errorMsg && <div className="alert alert-danger mb-4">{errorMsg}</div>}
 
-        <form onSubmit={handleSubmit} className="flex-column gap-4">
+        <form onSubmit={handleSubmit} className="flex-column gap-6">
           <div className="form-group mb-0">
-            <label>Título Descriptivo *</label>
-            <input className="form-control" type="text" placeholder="Ej: Pachanga Viernes..." required value={title} onChange={e => setTitle(e.target.value)} />
+            <label>Título de la Convocatoria *</label>
+            <input 
+              className="form-control" 
+              type="text" 
+              placeholder="Ej: Pachanga Viernes Noche" 
+              required 
+              value={title} 
+              onChange={e => setTitle(e.target.value)} 
+            />
           </div>
           
           <div className="form-group mb-0">
-            <label>Horario Programado *</label>
-            <input className="form-control" type="datetime-local" required value={scheduledAt} onChange={e => setScheduledAt(e.target.value)} />
+            <label>Horario y Fecha *</label>
+            <input 
+              className="form-control" 
+              type="datetime-local" 
+              required 
+              value={scheduledAt} 
+              onChange={e => setScheduledAt(e.target.value)} 
+            />
           </div>
           
           <div className="form-group mb-0">
-            <label>Sede / Instalación *</label>
-            <input className="form-control" type="text" placeholder="Ej: Pista Central" required value={location} onChange={e => setLocation(e.target.value)} />
+            <label>Ubicación / Instalación *</label>
+            <input 
+              className="form-control" 
+              type="text" 
+              placeholder="Ej: Polideportivo Municipal" 
+              required 
+              value={location} 
+              onChange={e => setLocation(e.target.value)} 
+            />
           </div>
           
           <div className="form-group mb-0">
-            <label>Plazas Totales Restringidas *</label>
-            <input className="form-control" type="number" min="2" max="22" required value={maxPlayers} onChange={e => setMaxPlayers(Number(e.target.value))} />
+            <label>Límite de Jugadores *</label>
+            <input 
+              className="form-control" 
+              type="number" 
+              min="2" 
+              max="22" 
+              required 
+              value={maxPlayers} 
+              onChange={e => setMaxPlayers(Number(e.target.value))} 
+            />
           </div>
           
-          <div className="flex-between mt-4 border-top pt-4" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '24px' }}>
+          <div className="flex-between mt-6 pt-6" style={{ borderTop: '1px solid var(--border-color)' }}>
             <button type="button" className="btn btn-secondary" onClick={() => navigate('/')}>
-              Cancelar
+              Descartar
             </button>
-            <button type="submit" disabled={loading} className="btn btn-primary" style={{ paddingLeft: '32px', paddingRight: '32px' }}>
-              {loading ? 'Procesando...' : 'Autorizar Partido'}
+            <button type="submit" disabled={loading} className="btn btn-primary" style={{ minWidth: '180px' }}>
+              {loading ? 'Procesando...' : 'Lanzar Convocatoria'}
             </button>
           </div>
         </form>

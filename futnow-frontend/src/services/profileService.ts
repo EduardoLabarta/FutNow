@@ -12,6 +12,23 @@ export const profileService = {
     return { data, error };
   },
 
+  uploadAvatar: async (userId: string, file: File): Promise<{ path: string | null; error: any | null }> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${userId}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+
+    const { data, error } = await supabase.storage
+      .from('avatars')
+      .upload(fileName, file, { cacheControl: '3600', upsert: false });
+
+    if (error) return { path: null, error };
+    return { path: data.path, error: null };
+  },
+
+  removeAvatar: async (path: string): Promise<{ error: any | null }> => {
+    const { error } = await supabase.storage.from('avatars').remove([path]);
+    return { error };
+  },
+
   updateMyProfile: async (userId: string, input: UpdateProfileInput): Promise<{ error: any }> => {
     const { error } = await supabase
       .from('profiles')

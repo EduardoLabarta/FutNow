@@ -39,44 +39,54 @@ export default function MyMatchesPage() {
     return () => { isMounted = false; };
   }, [user]);
 
-  if (!user || !profile) return <p>Sincronizando identidad...</p>;
+  if (!user || !profile) return <div className="loading-state">Sincronizando identidad...</div>;
 
   const isSuspended = profile.status === 'SUSPENDED';
 
   return (
-    <div className="page-container">
-      <h2>Panel Actividad Deportiva Personal</h2>
-      <p style={{ color: 'var(--secondary)', marginBottom: '30px' }}>Vista global de compromisos asumidos.</p>
+    <div className="page-container" style={{ maxWidth: '1000px', margin: '0 auto' }}>
+      <h2 style={{ marginBottom: '8px' }}>Panel Actividad Deportiva Personal</h2>
+      <p className="text-muted mb-6">Vista de tus partidos organizados y próximos encuentros.</p>
 
       {isSuspended && (
-        <div className="alert alert-danger">
-          <strong>⚠️ Nota RLS:</strong> Tu estado actual es SUSPENDIDO. Puedes ojear tu historial, pero no puedes interactuar ni tramitar operaciones transaccionales.
+        <div className="alert alert-danger mb-6">
+          <strong>Cuenta Suspendida:</strong> Tu estado actual es SUSPENDIDO. Puedes ver tu historial, pero no puedes organizar ni apuntarte a partidos.
         </div>
       )}
 
-      {errorMsg && <div className="alert alert-danger">{errorMsg}</div>}
+      {errorMsg && <div className="alert alert-danger mb-6">{errorMsg}</div>}
 
       {loading ? (
-        <p>Evaluando hoja de ruta...</p>
+        <div className="loading-state">Cargando tus partidos...</div>
       ) : (
-        <div style={{ display: 'grid', gap: '30px', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
           
-          <section className="card" style={{ marginBottom: 0 }}>
-            <h3 style={{ color: 'var(--primary)', borderBottom: '2px solid #eee', paddingBottom: '10px' }}>Partidos que Organizo</h3>
+          <section className="card card-container" style={{ margin: 0, backgroundColor: 'var(--primary-light)', borderColor: 'var(--border-color)' }}>
+            <h3 className="card-title text-primary" style={{ borderBottomColor: 'var(--border-color)' }}>Partidos que Organizo</h3>
             {organized.length === 0 ? (
-              <p className="alert alert-info">Todavía no has aperturado ningún partido local.</p>
+              <div className="flex-column flex-center text-center mt-4 p-4 text-muted border-dashed" style={{ border: '2px dashed var(--border-color)', borderRadius: 'var(--radius-sm)' }}>
+                ⚽ Todavía no has organizado ningún partido.
+              </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              <div className="flex-column gap-4 mt-4">
                 {organized.map(m => (
-                  <div key={m.id} style={{ border: '1px solid var(--border-color)', padding: '15px', borderRadius: '4px' }}>
-                    <h4 style={{ margin: '0 0 10px 0' }}>{m.title}</h4>
-                    <p style={{ margin: '5px 0' }}>📅 {new Date(m.scheduled_at).toLocaleString()}</p>
-                    <p style={{ margin: '5px 0' }}>📍 {m.location}</p>
-                    <p style={{ margin: '5px 0' }}>
-                       <strong>Estado:</strong> <span style={{ color: m.status === 'OPEN' ? 'var(--success)' : 'var(--danger)' }}>{m.status}</span>
-                    </p>
-                    <button onClick={() => navigate(`/matches/${m.id}`)} className="btn btn-info" style={{ marginTop: '10px' }}>
-                      Moderar Evento
+                  <div key={m.id} className="card" style={{ margin: 0, padding: '20px' }}>
+                    <div className="flex-between mb-4">
+                      <h4 style={{ margin: 0, fontSize: '16px' }}>{m.title}</h4>
+                      <span className={m.status === 'OPEN' ? 'badge badge-success' : 'badge badge-danger'}>{m.status}</span>
+                    </div>
+                    
+                    <div className="flex-column gap-2 text-sm text-muted mb-4">
+                      <div className="flex-center" style={{ justifyContent: 'flex-start', gap: '8px' }}>
+                        <strong className="text-main">Día:</strong> {new Date(m.scheduled_at).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })}
+                      </div>
+                      <div className="flex-center" style={{ justifyContent: 'flex-start', gap: '8px' }}>
+                         <strong className="text-main">Sede:</strong> {m.location}
+                      </div>
+                    </div>
+
+                    <button onClick={() => navigate(`/matches/${m.id}`)} className="btn btn-secondary btn-block">
+                      Ver Partido
                     </button>
                   </div>
                 ))}
@@ -84,25 +94,35 @@ export default function MyMatchesPage() {
             )}
           </section>
 
-          <section className="card" style={{ marginBottom: 0 }}>
-            <h3 style={{ color: 'var(--success)', borderBottom: '2px solid #eee', paddingBottom: '10px' }}>Participaciones Confirmadas</h3>
+          <section className="card card-container" style={{ margin: 0 }}>
+            <h3 className="card-title">Participaciones Confirmadas</h3>
             {joined.length === 0 ? (
-              <p className="alert alert-info">Actualmente no reservas butaca en ningún encuentro ajeno.</p>
+              <div className="flex-column flex-center text-center mt-4 p-4 text-muted border-dashed" style={{ border: '2px dashed var(--border-color)', borderRadius: 'var(--radius-sm)' }}>
+                🎟️ Actualmente no estás apuntado a ningún partido.
+              </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              <div className="flex-column gap-4 mt-4">
                 {joined.map(j => {
                    const m = j.matches;
                    if (!m) return null;
                    return (
-                      <div key={j.id} style={{ border: '1px solid var(--border-color)', padding: '15px', borderRadius: '4px', backgroundColor: 'var(--bg-color)' }}>
-                        <h4 style={{ margin: '0 0 10px 0' }}>{m.title}</h4>
-                        <p style={{ margin: '5px 0' }}>📅 {new Date(m.scheduled_at).toLocaleString()}</p>
-                        <p style={{ margin: '5px 0' }}>📍 {m.location}</p>
-                        <p style={{ margin: '5px 0' }}>
-                           <strong>Estado:</strong> <span style={{ color: m.status === 'OPEN' ? 'var(--success)' : 'var(--danger)' }}>{m.status}</span>
-                        </p>
-                        <button onClick={() => navigate(`/matches/${m.id}`)} className="btn btn-success" style={{ marginTop: '10px' }}>
-                          Inspeccionar Rivalidad
+                      <div key={j.id} className="card" style={{ margin: 0, padding: '20px', backgroundColor: 'var(--bg-color)' }}>
+                        <div className="flex-between mb-4">
+                          <h4 style={{ margin: 0, fontSize: '16px' }}>{m.title}</h4>
+                          <span className={m.status === 'OPEN' ? 'badge badge-success' : 'badge badge-danger'}>{m.status}</span>
+                        </div>
+                        
+                        <div className="flex-column gap-2 text-sm text-muted mb-4">
+                          <div className="flex-center" style={{ justifyContent: 'flex-start', gap: '8px' }}>
+                             <strong className="text-main">Día:</strong> {new Date(m.scheduled_at).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })}
+                          </div>
+                          <div className="flex-center" style={{ justifyContent: 'flex-start', gap: '8px' }}>
+                             <strong className="text-main">Sede:</strong> {m.location}
+                          </div>
+                        </div>
+
+                        <button onClick={() => navigate(`/matches/${m.id}`)} className="btn btn-secondary btn-block">
+                          Ver Partido
                         </button>
                       </div>
                    );

@@ -56,18 +56,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const initializeAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
         
-        let loadedProfile = null;
-        if (session?.user) {
-          loadedProfile = await loadProfileData(session.user.id);
-        }
-
         if (isMounted) {
-          setSession(session);
-          setUser(session?.user ?? null);
-          setProfile(loadedProfile);
-          setLoading(false);
+          setSession(initialSession);
+          setUser(initialSession?.user ?? null);
+          
+          if (initialSession?.user) {
+            setTimeout(() => {
+              loadProfileData(initialSession.user.id).then((loadedProfile) => {
+                if (isMounted) {
+                  setProfile(loadedProfile);
+                  setLoading(false);
+                }
+              });
+            }, 0);
+          } else {
+            setProfile(null);
+            setLoading(false);
+          }
         }
       } catch (error) {
         console.error("Error obteniendo la sesión inicial:", error);
@@ -77,18 +84,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     initializeAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
-      let loadedProfile = null;
-      
-      if (newSession?.user) {
-        loadedProfile = await loadProfileData(newSession.user.id);
-      }
-      
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
       if (isMounted) {
         setSession(newSession);
         setUser(newSession?.user ?? null);
-        setProfile(loadedProfile);
-        setLoading(false);
+        
+        if (newSession?.user) {
+          setTimeout(() => {
+            loadProfileData(newSession.user.id).then((loadedProfile) => {
+              if (isMounted) {
+                setProfile(loadedProfile);
+                setLoading(false);
+              }
+            });
+          }, 0);
+        } else {
+          setProfile(null);
+          setLoading(false);
+        }
       }
     });
 

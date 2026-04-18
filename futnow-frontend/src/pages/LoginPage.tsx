@@ -11,7 +11,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
-  if (loading) return <div style={{ padding: '20px', textAlign: 'center' }}>Cargando...</div>;
+  if (loading) return <div className="loading-state">Cargando...</div>;
   if (session) return <Navigate to="/" replace />;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,10 +22,13 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-      <div className="card" style={{ width: '100%', maxWidth: '400px', padding: '30px', margin: 0, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-        <h1 style={{ textAlign: 'center', marginBottom: '10px' }}>⚽ FutNow</h1>
-        <h2 style={{ textAlign: 'center', color: 'var(--secondary)', marginBottom: '30px', fontWeight: 'normal', fontSize: '18px' }}>Control de Acceso</h2>
+    <div className="auth-container">
+      <div className="auth-card" style={{ borderTop: '4px solid var(--primary)' }}>
+        <div className="flex-center mb-2" style={{ gap: '10px' }}>
+          <div style={{ width: '28px', height: '28px', backgroundColor: 'var(--primary)', borderRadius: '6px' }}></div>
+          <h1 style={{ margin: 0, fontSize: '28px' }}>FutNow</h1>
+        </div>
+        <h2 className="text-muted font-semibold text-center mb-6" style={{ fontSize: '15px' }}>Acceso a tu cuenta deportiva</h2>
         
         {errorMsg && <div className="alert alert-danger">{errorMsg}</div>}
 
@@ -38,19 +41,20 @@ export default function LoginPage() {
             <label>Contraseña</label>
             <input className="form-control" type="password" placeholder="••••••••" required value={password} onChange={e => setPassword(e.target.value)} />
           </div>
-          <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '10px', padding: '12px' }}>
+          <button type="submit" className="btn btn-primary btn-block" style={{ marginTop: '12px' }}>
              Iniciar Sesión
           </button>
         </form>
         
-        <hr style={{ margin: '25px 0', borderTop: '1px solid var(--border-color)' }} />
-        
-        <div style={{ textAlign: 'center' }}>
-          <p style={{ margin: '0 0 10px 0', fontSize: '14px', color: 'var(--secondary)' }}>¿No cuentas con autorización?</p>
-          <button type="button" onClick={() => navigate('/register')} className="btn btn-secondary" style={{ width: '100%' }}>
-             Solicitar Ingreso (Registro)
-          </button>
+        <div style={{ display: 'flex', alignItems: 'center', margin: '32px 0' }}>
+          <div style={{ flex: 1, borderTop: '1px solid var(--border-color)' }}></div>
+          <span style={{ padding: '0 12px', color: 'var(--text-muted)', fontSize: '13px' }}>¿No tienes cuenta?</span>
+          <div style={{ flex: 1, borderTop: '1px solid var(--border-color)' }}></div>
         </div>
+        
+        <button type="button" onClick={() => navigate('/register')} className="btn btn-secondary btn-block">
+          Crear una cuenta nueva
+        </button>
       </div>
     </div>
   );

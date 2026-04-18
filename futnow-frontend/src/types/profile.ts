@@ -2,6 +2,7 @@ export interface Profile {
   id: string;
   name: string;
   avatar_id: number | null;
+  avatar_path?: string | null;
   preferred_position: string | null;
   role: 'USER' | 'ADMIN';
   status: 'ACTIVE' | 'SUSPENDED';
@@ -12,5 +13,6 @@ export interface Profile {
 export interface UpdateProfileInput {
   name: string;
   avatar_id: number | null;
+  avatar_path?: string | null;
   preferred_position: string | null;
 }

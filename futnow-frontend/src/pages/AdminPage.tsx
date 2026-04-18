@@ -46,49 +46,55 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="page-container">
-      <h2>Consola Central de Administración (MVP)</h2>
-      <p style={{ color: 'var(--secondary)', marginBottom: '30px' }}>Supervisión y control jerárquico absoluto.</p>
+    <div className="page-container" style={{ maxWidth: '1000px', margin: '0 auto' }}>
+      <h2 className="text-primary mb-2">Consola Central de Administración</h2>
+      <p className="text-muted mb-6">Gestión de usuarios y supervisión general de partidos.</p>
 
-      {errorMsg && <div className="alert alert-danger">{errorMsg}</div>}
+      {errorMsg && <div className="alert alert-danger mb-6">{errorMsg}</div>}
 
-      {loading ? <p>Conectando al panel de control remoto...</p> : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+      {loading ? <div className="loading-state">Conectando al panel de control remoto...</div> : (
+        <div className="flex-column gap-6">
           
-          <section className="card" style={{ padding: '0', overflow: 'hidden' }}>
-            <h3 style={{ margin: 0, padding: '20px', backgroundColor: '#343a40', color: 'white' }}>Moderación de Expedientes (Usuarios)</h3>
-            <div style={{ overflowX: 'auto', padding: '10px' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px' }}>
+          <section className="card" style={{ padding: 0, overflow: 'hidden', margin: 0, borderTop: '4px solid var(--warning)' }}>
+            <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)' }}>
+              <h3 style={{ margin: 0, fontSize: '18px' }}>Moderación de Usuarios</h3>
+            </div>
+            <div className="table-responsive">
+              <table className="table">
                 <thead>
-                  <tr style={{ borderBottom: '2px solid var(--border-color)' }}>
-                    <th style={{ padding: '12px' }}>A.K.A. (Nick)</th>
-                    <th style={{ padding: '12px' }}>Jerarquía</th>
-                    <th style={{ padding: '12px' }}>Estatus</th>
-                    <th style={{ padding: '12px' }}>Operativa</th>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   {profiles.map(p => (
-                    <tr key={p.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                      <td style={{ padding: '12px' }}><strong>{p.name || 'Anónimo'}</strong></td>
-                      <td style={{ padding: '12px' }}>
-                         <span style={{ backgroundColor: p.role === 'ADMIN' ? '#ffc107' : '#e2e3e5', color: p.role === 'ADMIN' ? '#000' : '#444', padding: '3px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                    <tr key={p.id}>
+                      <td><strong className="text-main">{p.name || 'Anónimo'}</strong></td>
+                      <td>
+                         <span className={p.role === 'ADMIN' ? 'badge badge-warning' : 'badge badge-secondary'}>
                             {p.role}
                          </span>
                       </td>
-                      <td style={{ padding: '12px', color: p.status === 'ACTIVE' ? 'var(--success)' : 'var(--danger)', fontWeight: 'bold' }}>{p.status}</td>
-                      <td style={{ padding: '12px' }}>
+                      <td>
+                         <span className={p.status === 'ACTIVE' ? 'badge badge-success' : 'badge badge-danger'}>
+                           {p.status}
+                         </span>
+                      </td>
+                      <td>
                         {p.id !== user?.id && p.role !== 'ADMIN' && (
                            <button 
                              onClick={() => void handleToggleStatus(p.id, p.status)} 
-                             className={`btn ${p.status === 'ACTIVE' ? 'btn-danger' : 'btn-success'}`} 
+                             className="btn btn-secondary"
                              style={{ padding: '6px 12px', fontSize: '12px' }}
                            >
-                              {p.status === 'ACTIVE' ? 'Forzar Suspensión' : 'Revocar Suspensión'}
+                              {p.status === 'ACTIVE' ? 'Suspender' : 'Reactivar'}
                            </button>
                         )}
-                        {p.id === user?.id && <span style={{ fontSize: '13px', color: '#6c757d', fontStyle: 'italic' }}>Auto (Bloqueado)</span>}
-                        {p.id !== user?.id && p.role === 'ADMIN' && <span style={{ fontSize: '13px', color: '#6c757d', fontStyle: 'italic' }}>Inmune (Admin)</span>}
+                        {p.id === user?.id && <span className="text-sm text-muted">Cuenta Actual</span>}
+                        {p.id !== user?.id && p.role === 'ADMIN' && <span className="text-sm text-muted">Admin Inmune</span>}
                       </td>
                     </tr>
                   ))}
@@ -97,35 +103,41 @@ export default function AdminPage() {
             </div>
           </section>
 
-          <section className="card" style={{ padding: '0', overflow: 'hidden' }}>
-            <h3 style={{ margin: 0, padding: '20px', backgroundColor: '#343a40', color: 'white' }}>Intervención de Partidos</h3>
-            <div style={{ overflowX: 'auto', padding: '10px' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px' }}>
+          <section className="card" style={{ padding: 0, overflow: 'hidden', margin: 0, borderTop: '4px solid var(--primary)' }}>
+            <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)' }}>
+              <h3 style={{ margin: 0, fontSize: '18px' }}>Supervisión de Partidos</h3>
+            </div>
+            <div className="table-responsive">
+              <table className="table">
                 <thead>
-                  <tr style={{ borderBottom: '2px solid var(--border-color)' }}>
-                    <th style={{ padding: '12px' }}>Cabecera Evento</th>
-                    <th style={{ padding: '12px' }}>Horario Programado</th>
-                    <th style={{ padding: '12px' }}>Estado RLS</th>
-                    <th style={{ padding: '12px' }}>Operativa</th>
+                  <tr>
+                    <th>Partido</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   {matches.map(m => (
-                    <tr key={m.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                      <td style={{ padding: '12px' }}><strong>{m.title}</strong></td>
-                      <td style={{ padding: '12px' }}>{new Date(m.scheduled_at).toLocaleDateString()} {new Date(m.scheduled_at).toLocaleTimeString()}</td>
-                      <td style={{ padding: '12px', color: m.status === 'OPEN' ? 'var(--success)' : 'var(--danger)', fontWeight: 'bold' }}>{m.status}</td>
-                      <td style={{ padding: '12px' }}>
+                    <tr key={m.id}>
+                      <td><strong className="text-main">{m.title}</strong></td>
+                      <td className="text-muted">{new Date(m.scheduled_at).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })}</td>
+                      <td>
+                         <span className={m.status === 'OPEN' ? 'badge badge-success' : 'badge badge-danger'}>
+                           {m.status}
+                         </span>
+                      </td>
+                      <td>
                          {m.status === 'OPEN' && (
                            <button 
                               onClick={() => void handleCancelMatch(m.id)} 
-                              className="btn btn-warning" 
-                              style={{ padding: '6px 12px', fontSize: '12px', color: '#000' }}
+                              className="btn btn-secondary"
+                              style={{ padding: '6px 12px', fontSize: '12px', color: 'var(--danger)', borderColor: 'var(--danger)' }}
                            >
-                              Forzar Cancelación (Admin)
+                              Forzar Cancelación
                            </button>
                          )}
-                         {m.status === 'CANCELLED' && <span style={{ fontSize: '13px', color: '#6c757d', fontStyle: 'italic' }}>Cerrado Definitivo</span>}
+                         {m.status === 'CANCELLED' && <span className="text-sm text-muted">Cerrado Definitivo</span>}
                       </td>
                     </tr>
                   ))}

@@ -13,7 +13,7 @@ export default function RegisterPage() {
   const [message, setMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
 
-  if (loading) return <div style={{ padding: '20px', textAlign: 'center' }}>Cargando...</div>;
+  if (loading) return <div className="loading-state">Cargando...</div>;
   if (session) return <Navigate to="/" replace />;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,10 +31,13 @@ export default function RegisterPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-      <div className="card" style={{ width: '100%', maxWidth: '400px', padding: '30px', margin: 0, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-        <h1 style={{ textAlign: 'center', marginBottom: '10px' }}>⚽ FutNow</h1>
-        <h2 style={{ textAlign: 'center', color: 'var(--secondary)', marginBottom: '30px', fontWeight: 'normal', fontSize: '18px' }}>Solicitud de Alta</h2>
+    <div className="auth-container">
+      <div className="auth-card" style={{ borderTop: '4px solid var(--primary)' }}>
+        <div className="flex-center mb-2" style={{ gap: '10px' }}>
+          <div style={{ width: '28px', height: '28px', backgroundColor: 'var(--primary)', borderRadius: '6px' }}></div>
+          <h1 style={{ margin: 0, fontSize: '28px' }}>FutNow</h1>
+        </div>
+        <h2 className="text-muted font-semibold text-center mb-6" style={{ fontSize: '15px' }}>Crear una cuenta oficial</h2>
         
         {message && (
            <div className={`alert ${isSuccess ? 'alert-success' : 'alert-danger'}`}>
@@ -44,29 +47,31 @@ export default function RegisterPage() {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>A.K.A. o Nombre Público</label>
+            <label>Nombre Público</label>
             <input className="form-control" type="text" placeholder="Ej: El Mago" required value={name} onChange={e => setName(e.target.value)} />
           </div>
           <div className="form-group">
-            <label>Correo Electrónico Base</label>
+            <label>Correo Electrónico</label>
             <input className="form-control" type="email" placeholder="jugador@ejemplo.com" required value={email} onChange={e => setEmail(e.target.value)} />
           </div>
           <div className="form-group">
-            <label>Contraseña Maestra</label>
+            <label>Contraseña</label>
             <input className="form-control" type="password" placeholder="Mínimo 6 caracteres" required value={password} onChange={e => setPassword(e.target.value)} />
           </div>
-          <button type="submit" className="btn btn-success" style={{ width: '100%', marginTop: '10px', padding: '12px' }}>
+          <button type="submit" className="btn btn-primary btn-block" style={{ marginTop: '12px' }}>
              Completar Registro
           </button>
         </form>
         
-        <hr style={{ margin: '25px 0', borderTop: '1px solid var(--border-color)' }} />
-        
-        <div style={{ textAlign: 'center' }}>
-          <button type="button" onClick={() => navigate('/login')} className="btn btn-secondary" style={{ width: '100%' }}>
-             Volver a Iniciar Sesión
-          </button>
+        <div style={{ display: 'flex', alignItems: 'center', margin: '32px 0' }}>
+          <div style={{ flex: 1, borderTop: '1px solid var(--border-color)' }}></div>
+          <span style={{ padding: '0 12px', color: 'var(--text-muted)', fontSize: '13px' }}>¿Ya tienes cuenta?</span>
+          <div style={{ flex: 1, borderTop: '1px solid var(--border-color)' }}></div>
         </div>
+        
+        <button type="button" onClick={() => navigate('/login')} className="btn btn-secondary btn-block">
+           Volver a Iniciar Sesión
+        </button>
       </div>
     </div>
   );

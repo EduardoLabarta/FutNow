@@ -49,50 +49,44 @@ export default function CreateMatchPage() {
   };
 
   return (
-    <div className="page-container" style={{ maxWidth: '600px', margin: '0 auto' }}>
-      
-      {isSuspended && (
-        <div className="alert alert-danger" style={{ marginBottom: '20px' }}>
-          <strong>⚠️ Nota RLS:</strong> Cuenta SUSPENDIDA. Careces de permisos para organizar.
-        </div>
-      )}
+    <div className="page-container flex-column flex-center">
+      <div className="card" style={{ width: '100%', maxWidth: '600px' }}>
+        <h2 className="mb-2">Nuevo Encuentro Deportivo</h2>
+        <p className="text-muted mb-6">Completa los datos para habilitar una nueva convocatoria.</p>
 
-      <div className="card">
-        <h2 style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>Crear Partido Deportivo</h2>
-        
-        {errorMsg && <div className="alert alert-danger">{errorMsg}</div>}
+        {errorMsg && <div className="alert alert-danger mb-4">{errorMsg}</div>}
 
-        <form onSubmit={handleSubmit} style={{ marginTop: '20px' }}>
-          <div className="form-group">
-             <label>Título del Partido (Ej. Pachanga Jueves)</label>
-             <input className="form-control" type="text" required disabled={isSuspended} value={title} onChange={e => setTitle(e.target.value)} />
-          </div>
-          <div className="form-group">
-             <label>Fecha y Hora Oficial</label>
-             <input className="form-control" type="datetime-local" required disabled={isSuspended} value={scheduledAt} onChange={e => setScheduledAt(e.target.value)} />
-          </div>
-          <div className="form-group">
-             <label>Ubicación (Nombre del Recinto)</label>
-             <input className="form-control" type="text" required disabled={isSuspended} value={location} onChange={e => setLocation(e.target.value)} />
-          </div>
-          <div className="form-group">
-             <label>Plazas Disponibles (Total Jugadores)</label>
-             <input className="form-control" type="number" min="2" max="30" required disabled={isSuspended} value={maxPlayers} onChange={e => setMaxPlayers(Number(e.target.value))} />
+        <form onSubmit={handleSubmit} className="flex-column gap-4">
+          <div className="form-group mb-0">
+            <label>Título Descriptivo *</label>
+            <input className="form-control" type="text" placeholder="Ej: Pachanga Viernes..." required value={title} onChange={e => setTitle(e.target.value)} />
           </div>
           
-          <div style={{ marginTop: '25px', display: 'flex', gap: '15px' }}>
-             {!isSuspended && (
-                <button type="submit" disabled={loading} className="btn btn-primary" style={{ flex: 1 }}>
-                  {loading ? 'Tramitando...' : 'Confirmar Reserva de Creación'}
-                </button>
-             )}
-             <button type="button" onClick={() => navigate(-1)} className="btn btn-secondary">
-               Cancelar
-             </button>
+          <div className="form-group mb-0">
+            <label>Horario Programado *</label>
+            <input className="form-control" type="datetime-local" required value={scheduledAt} onChange={e => setScheduledAt(e.target.value)} />
+          </div>
+          
+          <div className="form-group mb-0">
+            <label>Sede / Instalación *</label>
+            <input className="form-control" type="text" placeholder="Ej: Pista Central" required value={location} onChange={e => setLocation(e.target.value)} />
+          </div>
+          
+          <div className="form-group mb-0">
+            <label>Plazas Totales Restringidas *</label>
+            <input className="form-control" type="number" min="2" max="22" required value={maxPlayers} onChange={e => setMaxPlayers(Number(e.target.value))} />
+          </div>
+          
+          <div className="flex-between mt-4 border-top pt-4" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '24px' }}>
+            <button type="button" className="btn btn-secondary" onClick={() => navigate('/')}>
+              Cancelar
+            </button>
+            <button type="submit" disabled={loading} className="btn btn-primary" style={{ paddingLeft: '32px', paddingRight: '32px' }}>
+              {loading ? 'Procesando...' : 'Autorizar Partido'}
+            </button>
           </div>
         </form>
       </div>
-
     </div>
   );
 }

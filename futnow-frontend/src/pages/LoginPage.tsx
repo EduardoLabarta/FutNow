@@ -21,6 +21,12 @@ export default function LoginPage() {
     if (error) setErrorMsg('Credenciales inválidas, intenta de nuevo.');
   };
 
+  const handleGoogleLogin = async () => {
+    setErrorMsg('');
+    const { error } = await authService.signInWithGoogle();
+    if (error) setErrorMsg(`Error al conectar con Google: ${error.message}`);
+  };
+
   return (
     <div className="auth-container">
       <div className="auth-card">
@@ -57,6 +63,16 @@ export default function LoginPage() {
           </div>
           <button type="submit" className="btn btn-primary btn-block mt-2">
              Entrar al Sistema
+          </button>
+
+          <button 
+            type="button" 
+            onClick={handleGoogleLogin} 
+            className="btn btn-secondary btn-block flex-center" 
+            style={{ gap: '10px', backgroundColor: 'white', color: '#374151', border: '1px solid #d1d5db' }}
+          >
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style={{ width: '18px', height: '18px' }} />
+            Continuar con Google
           </button>
         </form>
         

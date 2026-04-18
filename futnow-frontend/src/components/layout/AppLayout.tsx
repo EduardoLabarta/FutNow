@@ -40,7 +40,7 @@ export const AppLayout = () => {
       </main>
 
       <footer style={{ textAlign: 'center', padding: '32px 24px', color: 'var(--text-light)', fontSize: '13px', borderTop: '1px solid var(--border-color)', backgroundColor: 'var(--card-bg)' }}>
-        &copy; {new Date().getFullYear()} FutNow MVP - Entorno Corporativo
+        &copy; {new Date().getFullYear()} FutNow
       </footer>
     </div>
   );

@@ -15,7 +15,7 @@ export const AppLayout = () => {
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <header className="header-layout">
         <Link to="/" className="header-brand" style={{ display: 'flex', alignItems: 'center' }}>
-          <img src={logo} alt="FutNow" style={{ height: '45px', width: 'auto' }} />
+          <img src={logo} alt="FutNow" style={{ height: '60px', width: 'auto' }} />
         </Link>
         
         {user && profile && (

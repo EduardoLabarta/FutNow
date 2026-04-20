@@ -32,7 +32,7 @@ export default function LoginPage() {
     <div className="auth-container">
       <div className="auth-card">
         <div className="flex-center mb-6">
-          <img src={logo} alt="FutNow" style={{ width: '180px', height: 'auto' }} />
+          <img src={logo} alt="FutNow" style={{ width: '250px', height: 'auto' }} />
         </div>
         
         <h2 className="text-muted text-center mb-6" style={{ fontSize: '16px', fontWeight: 500 }}>Inicia sesión en tu cuenta deportiva</h2>

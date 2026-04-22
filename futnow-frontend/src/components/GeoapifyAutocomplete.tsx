@@ -19,17 +19,35 @@ interface GeoapifyFeature {
   properties: {
     name?: string;
     formatted?: string;
+    address_line1?: string;
+    address_line2?: string;
     lat: number;
     lon: number;
+    category?: string;
+    categories?: string[];
   };
 }
 
 const API_KEY = import.meta.env.VITE_GEOAPIFY_API_KEY as string | undefined;
 
+// Sport-related categories for the Places API
+const SPORT_CATEGORIES = [
+  'sport',
+  'sport.pitch',
+  'sport.sports_centre',
+  'sport.stadium',
+  'sport.swimming_pool',
+  'sport.track',
+  'sport.fitness',
+  'activity.sport_club',
+  'building.sport',
+  'leisure.playground',
+].join(',');
+
 export default function GeoapifyAutocomplete({
   onPlaceSelect,
   onManualInput,
-  placeholder = 'Buscar ubicación...',
+  placeholder = 'Buscar instalación deportiva...',
   required = false,
   value = '',
 }: GeoapifyAutocompleteProps) {
@@ -64,17 +82,29 @@ export default function GeoapifyAutocomplete({
     }
 
     try {
-      const url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(text)}&limit=5&apiKey=${API_KEY}`;
-      const res = await fetch(url);
+      // Strategy: First try the Places API filtered by sport categories using the name param,
+      // then fall back to general geocode autocomplete if no sport results
+      const placesUrl = `https://api.geoapify.com/v2/places?categories=${SPORT_CATEGORIES}&name=${encodeURIComponent(text)}&bias=countrycode:es&limit=5&apiKey=${API_KEY}`;
+      const placesRes = await fetch(placesUrl);
 
-      if (!res.ok) {
-        setApiFailed(true);
-        setSuggestions([]);
-        return;
+      let features: GeoapifyFeature[] = [];
+
+      if (placesRes.ok) {
+        const placesData = await placesRes.json();
+        features = placesData.features || [];
       }
 
-      const data = await res.json();
-      const features: GeoapifyFeature[] = data.features || [];
+      // If no sport-specific results, fall back to general autocomplete
+      if (features.length === 0) {
+        const autocompleteUrl = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(text)}&limit=5&apiKey=${API_KEY}`;
+        const autocompleteRes = await fetch(autocompleteUrl);
+
+        if (autocompleteRes.ok) {
+          const autocompleteData = await autocompleteRes.json();
+          features = autocompleteData.features || [];
+        }
+      }
+
       setSuggestions(features);
       setShowDropdown(features.length > 0);
     } catch {
@@ -88,18 +118,18 @@ export default function GeoapifyAutocomplete({
     setInputValue(text);
     onManualInput(text);
 
-    // Debounce API calls (300ms)
+    // Debounce API calls (350ms)
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       void fetchSuggestions(text);
-    }, 300);
+    }, 350);
   };
 
   const handleSelect = (feature: GeoapifyFeature) => {
     const props = feature.properties;
     const result: PlaceResult = {
-      name: props.name || '',
-      address: props.formatted || '',
+      name: props.name || props.address_line1 || '',
+      address: props.formatted || props.address_line2 || '',
       lat: props.lat,
       lng: props.lon,
     };
@@ -108,6 +138,8 @@ export default function GeoapifyAutocomplete({
     setShowDropdown(false);
     onPlaceSelect(result);
   };
+
+
 
   return (
     <div ref={containerRef} style={{ position: 'relative' }}>
@@ -121,6 +153,18 @@ export default function GeoapifyAutocomplete({
         onFocus={() => { if (suggestions.length > 0) setShowDropdown(true); }}
         autoComplete="off"
       />
+
+      {/* Hint text */}
+      {!apiFailed && (
+        <p style={{
+          margin: '4px 0 0 0',
+          fontSize: '11px',
+          color: 'var(--text-muted, #71717a)',
+          fontStyle: 'italic',
+        }}>
+          Sugerencias orientadas a instalaciones deportivas
+        </p>
+      )}
 
       {/* Dropdown de sugerencias */}
       {showDropdown && suggestions.length > 0 && (
@@ -137,7 +181,7 @@ export default function GeoapifyAutocomplete({
           border: '1px solid var(--border-color, #27272a)',
           borderRadius: 'var(--radius-sm, 8px)',
           boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
-          maxHeight: '220px',
+          maxHeight: '260px',
           overflowY: 'auto',
         }}>
           {suggestions.map((feat, idx) => (
@@ -155,9 +199,12 @@ export default function GeoapifyAutocomplete({
               onMouseEnter={(e) => { (e.target as HTMLElement).style.backgroundColor = 'var(--surface-hover, #27272a)'; }}
               onMouseLeave={(e) => { (e.target as HTMLElement).style.backgroundColor = 'transparent'; }}
             >
-              <div style={{ fontWeight: 500 }}>{feat.properties.name || 'Sin nombre'}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+
+                <span style={{ fontWeight: 500 }}>{feat.properties.name || feat.properties.address_line1 || 'Sin nombre'}</span>
+              </div>
               {feat.properties.formatted && (
-                <div style={{ fontSize: '12px', color: 'var(--text-muted, #a1a1aa)', marginTop: '2px' }}>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted, #a1a1aa)', marginTop: '2px', paddingLeft: '24px' }}>
                   {feat.properties.formatted}
                 </div>
               )}

@@ -84,7 +84,7 @@ export default function HomePage() {
         {errorStatus && <div className="alert alert-danger">{errorStatus}</div>}
         {!loadingMatches && !errorStatus && matches.length === 0 && (
           <div className="card flex-column flex-center text-center" style={{ padding: '60px 20px', minHeight: '300px' }}>
-            <div style={{ fontSize: '40px', marginBottom: '16px' }}>⚽</div>
+            <div style={{ fontSize: '40px', marginBottom: '16px' }}></div>
             <h3 style={{ margin: '0 0 8px 0' }}>No hay partidos programados</h3>
             <p className="text-muted" style={{ margin: '0 0 24px 0' }}>¡Sé el primero en crear uno y empieza a jugar!</p>
             {!isSuspended && <button className="btn btn-primary" onClick={() => navigate('/matches/new')}>Crear un Partido</button>}

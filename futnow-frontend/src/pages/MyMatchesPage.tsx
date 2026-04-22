@@ -65,7 +65,7 @@ export default function MyMatchesPage() {
             <h3 className="card-title text-primary" style={{ borderBottomColor: 'var(--border-color)' }}>Partidos que Organizo</h3>
             {organized.length === 0 ? (
               <div className="flex-column flex-center text-center mt-4 p-4 text-muted border-dashed" style={{ border: '2px dashed var(--border-color)', borderRadius: 'var(--radius-sm)' }}>
-                ⚽ Todavía no has organizado ningún partido.
+                Todavía no has organizado ningún partido.
               </div>
             ) : (
               <div className="flex-column gap-4 mt-4">
@@ -98,7 +98,7 @@ export default function MyMatchesPage() {
             <h3 className="card-title">Participaciones Confirmadas</h3>
             {joined.length === 0 ? (
               <div className="flex-column flex-center text-center mt-4 p-4 text-muted border-dashed" style={{ border: '2px dashed var(--border-color)', borderRadius: 'var(--radius-sm)' }}>
-                🎟️ Actualmente no estás apuntado a ningún partido.
+                Actualmente no estás apuntado a ningún partido.
               </div>
             ) : (
               <div className="flex-column gap-4 mt-4">

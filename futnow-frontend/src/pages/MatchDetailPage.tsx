@@ -123,7 +123,7 @@ export default function MatchDetailPage() {
               {match.venue_name ? (
                 <div>
                   <div className="text-main font-semibold" style={{ fontSize: '18px' }}>
-                    📍 {match.venue_name}
+                    {match.venue_name}
                   </div>
                   {match.venue_address && (
                     <div className="text-muted" style={{ fontSize: '14px', marginTop: '4px' }}>
@@ -145,7 +145,7 @@ export default function MatchDetailPage() {
                 className="btn btn-secondary"
                 style={{ marginTop: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', padding: '8px 16px', textDecoration: 'none' }}
               >
-                🧭 Cómo llegar
+                Cómo llegar
               </a>
             </div>
 
@@ -176,7 +176,7 @@ export default function MatchDetailPage() {
           <h3 className="card-title text-main">Alineación Confirmada</h3>
           {participants.length === 0 ? (
             <div className="flex-column flex-center text-center" style={{ padding: '40px 0' }}>
-              <div style={{ fontSize: '32px', marginBottom: '12px', opacity: 0.5 }}>👕</div>
+              <div style={{ fontSize: '32px', marginBottom: '12px', opacity: 0.5 }}></div>
               <p className="text-muted m-0">Aún no hay inscritos en este partido.</p>
             </div>
           ) : (

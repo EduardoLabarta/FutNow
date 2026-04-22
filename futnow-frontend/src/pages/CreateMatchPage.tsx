@@ -124,7 +124,7 @@ export default function CreateMatchPage() {
                 color: 'var(--success, #10b981)',
                 fontWeight: 500,
               }}>
-                📍 {venueData.address}
+                {venueData.address}
               </p>
             )}
           </div>

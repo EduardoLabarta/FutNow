@@ -21,6 +21,7 @@ interface GeoapifyFeature {
     formatted?: string;
     address_line1?: string;
     address_line2?: string;
+    result_type?: string;
     lat: number;
     lon: number;
     category?: string;
@@ -30,19 +31,25 @@ interface GeoapifyFeature {
 
 const API_KEY = import.meta.env.VITE_GEOAPIFY_API_KEY as string | undefined;
 
-// Sport-related categories for the Places API
+// Sport-related categories for the Places API (only concrete venues)
 const SPORT_CATEGORIES = [
-  'sport',
   'sport.pitch',
   'sport.sports_centre',
   'sport.stadium',
-  'sport.swimming_pool',
-  'sport.track',
-  'sport.fitness',
   'activity.sport_club',
   'building.sport',
-  'leisure.playground',
 ].join(',');
+
+// Result types that are too generic — we discard these from fallback results
+const GENERIC_RESULT_TYPES = new Set([
+  'city',
+  'county',
+  'state',
+  'country',
+  'postcode',
+  'region',
+  'municipality',
+]);
 
 export default function GeoapifyAutocomplete({
   onPlaceSelect,
@@ -82,8 +89,7 @@ export default function GeoapifyAutocomplete({
     }
 
     try {
-      // Strategy: First try the Places API filtered by sport categories using the name param,
-      // then fall back to general geocode autocomplete if no sport results
+      // 1) Try the Places API filtered by concrete sport categories
       const placesUrl = `https://api.geoapify.com/v2/places?categories=${SPORT_CATEGORIES}&name=${encodeURIComponent(text)}&bias=countrycode:es&limit=5&apiKey=${API_KEY}`;
       const placesRes = await fetch(placesUrl);
 
@@ -94,14 +100,33 @@ export default function GeoapifyAutocomplete({
         features = placesData.features || [];
       }
 
-      // If no sport-specific results, fall back to general autocomplete
-      if (features.length === 0) {
-        const autocompleteUrl = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(text)}&limit=5&apiKey=${API_KEY}`;
+      // 2) If not enough sport results, fall back to general autocomplete
+      //    but filter out overly generic results (cities, regions, etc.)
+      if (features.length < 3) {
+        const autocompleteUrl = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(text)}&limit=10&apiKey=${API_KEY}`;
         const autocompleteRes = await fetch(autocompleteUrl);
 
         if (autocompleteRes.ok) {
           const autocompleteData = await autocompleteRes.json();
-          features = autocompleteData.features || [];
+          const rawResults: GeoapifyFeature[] = autocompleteData.features || [];
+
+          // Only keep concrete results (streets, amenities, buildings, etc.)
+          const concreteResults = rawResults.filter(f => {
+            const rt = f.properties.result_type;
+            if (!rt) return true; // if no result_type, keep it
+            return !GENERIC_RESULT_TYPES.has(rt);
+          });
+
+          // Merge: sport results first, then concrete fallback (no duplicates by coordinates)
+          const existingCoords = new Set(features.map(f => `${f.properties.lat},${f.properties.lon}`));
+          for (const r of concreteResults) {
+            const key = `${r.properties.lat},${r.properties.lon}`;
+            if (!existingCoords.has(key)) {
+              features.push(r);
+              existingCoords.add(key);
+            }
+            if (features.length >= 5) break;
+          }
         }
       }
 
@@ -139,8 +164,6 @@ export default function GeoapifyAutocomplete({
     onPlaceSelect(result);
   };
 
-
-
   return (
     <div ref={containerRef} style={{ position: 'relative' }}>
       <input
@@ -154,17 +177,6 @@ export default function GeoapifyAutocomplete({
         autoComplete="off"
       />
 
-      {/* Hint text */}
-      {!apiFailed && (
-        <p style={{
-          margin: '4px 0 0 0',
-          fontSize: '11px',
-          color: 'var(--text-muted, #71717a)',
-          fontStyle: 'italic',
-        }}>
-          Sugerencias orientadas a instalaciones deportivas
-        </p>
-      )}
 
       {/* Dropdown de sugerencias */}
       {showDropdown && suggestions.length > 0 && (
@@ -199,12 +211,9 @@ export default function GeoapifyAutocomplete({
               onMouseEnter={(e) => { (e.target as HTMLElement).style.backgroundColor = 'var(--surface-hover, #27272a)'; }}
               onMouseLeave={(e) => { (e.target as HTMLElement).style.backgroundColor = 'transparent'; }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-
-                <span style={{ fontWeight: 500 }}>{feat.properties.name || feat.properties.address_line1 || 'Sin nombre'}</span>
-              </div>
+              <div style={{ fontWeight: 500 }}>{feat.properties.name || feat.properties.address_line1 || 'Sin nombre'}</div>
               {feat.properties.formatted && (
-                <div style={{ fontSize: '12px', color: 'var(--text-muted, #a1a1aa)', marginTop: '2px', paddingLeft: '24px' }}>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted, #a1a1aa)', marginTop: '2px' }}>
                   {feat.properties.formatted}
                 </div>
               )}
@@ -220,7 +229,7 @@ export default function GeoapifyAutocomplete({
           color: 'var(--warning, #f5a524)',
           fontWeight: 500,
         }}>
-          ⚠ Sugerencias de ubicación no disponibles. Puedes escribir la dirección manualmente.
+          Sugerencias de ubicación no disponibles. Puedes escribir la dirección manualmente.
         </p>
       )}
     </div>

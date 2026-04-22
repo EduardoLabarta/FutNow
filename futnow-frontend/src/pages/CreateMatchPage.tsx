@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { matchService } from '../services/matchService';
+import GeoapifyAutocomplete, { type PlaceResult } from '../components/GeoapifyAutocomplete';
 
 export default function CreateMatchPage() {
   const navigate = useNavigate();
@@ -9,18 +10,37 @@ export default function CreateMatchPage() {
   
   const [title, setTitle] = useState('');
   const [scheduledAt, setScheduledAt] = useState('');
-  const [location, setLocation] = useState('');
   const [maxPlayers, setMaxPlayers] = useState(10);
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Venue state — null means no suggestion was selected
+  const [locationText, setLocationText] = useState('');
+  const [venueData, setVenueData] = useState<PlaceResult | null>(null);
+
   const isSuspended = profile?.status === 'SUSPENDED';
+
+  const handlePlaceSelect = useCallback((place: PlaceResult) => {
+    setVenueData(place);
+    setLocationText(place.name || place.address);
+  }, []);
+
+  const handleManualInput = useCallback((text: string) => {
+    // User is typing manually → clear any previous selection
+    setVenueData(null);
+    setLocationText(text);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || isSuspended) return;
     
     setErrorMsg('');
+
+    if (!locationText.trim()) {
+      setErrorMsg('Por favor, indica una ubicación para el partido.');
+      return;
+    }
 
     const selectedDate = new Date(scheduledAt);
     if (selectedDate <= new Date()) {
@@ -34,15 +54,23 @@ export default function CreateMatchPage() {
       const { error } = await matchService.createMatch({
           title,
           scheduled_at: selectedDate.toISOString(),
-          location,
+          location: venueData
+            ? (venueData.address || venueData.name)
+            : locationText.trim(),
           max_players: maxPlayers,
-          organizer_id: user.id
+          organizer_id: user.id,
+          // Only set venue fields if user selected a suggestion
+          venue_name: venueData?.name || null,
+          venue_address: venueData?.address || null,
+          venue_lat: venueData?.lat || null,
+          venue_lng: venueData?.lng || null,
       });
 
       if (error) setErrorMsg(`Error de servidor: ${error.message}`);
       else navigate('/');
-    } catch (err: any) {
-      setErrorMsg(`Excepción local: ${err.message}`);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error desconocido';
+      setErrorMsg(`Excepción local: ${message}`);
     } finally {
       setLoading(false);
     }
@@ -82,14 +110,23 @@ export default function CreateMatchPage() {
           
           <div className="form-group mb-0">
             <label>Ubicación / Instalación *</label>
-            <input 
-              className="form-control" 
-              type="text" 
-              placeholder="Ej: Polideportivo Municipal" 
-              required 
-              value={location} 
-              onChange={e => setLocation(e.target.value)} 
+            <GeoapifyAutocomplete
+              placeholder="Ej: Polideportivo Municipal"
+              required
+              value={locationText}
+              onPlaceSelect={handlePlaceSelect}
+              onManualInput={handleManualInput}
             />
+            {venueData && (
+              <p style={{
+                margin: '6px 0 0 0',
+                fontSize: '12px',
+                color: 'var(--success, #10b981)',
+                fontWeight: 500,
+              }}>
+                📍 {venueData.address}
+              </p>
+            )}
           </div>
           
           <div className="form-group mb-0">

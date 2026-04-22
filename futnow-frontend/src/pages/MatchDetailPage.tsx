@@ -120,7 +120,33 @@ export default function MatchDetailPage() {
 
             <div>
               <strong className="text-muted text-sm block mb-2">Lugar / Sede</strong>
-              <div className="text-main font-semibold" style={{ fontSize: '18px' }}>{match.location}</div>
+              {match.venue_name ? (
+                <div>
+                  <div className="text-main font-semibold" style={{ fontSize: '18px' }}>
+                    📍 {match.venue_name}
+                  </div>
+                  {match.venue_address && (
+                    <div className="text-muted" style={{ fontSize: '14px', marginTop: '4px' }}>
+                      {match.venue_address}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-main font-semibold" style={{ fontSize: '18px' }}>{match.location}</div>
+              )}
+              <a
+                href={
+                  match.venue_lat && match.venue_lng
+                    ? `https://www.google.com/maps/dir/?api=1&destination=${match.venue_lat},${match.venue_lng}`
+                    : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(match.venue_address || match.location)}`
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-secondary"
+                style={{ marginTop: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', padding: '8px 16px', textDecoration: 'none' }}
+              >
+                🧭 Cómo llegar
+              </a>
             </div>
 
             <div>

@@ -6,6 +6,7 @@ export interface Match {
   max_players: number;
   status: 'OPEN' | 'CANCELLED';
   organizer_id: string;
+  venue_id?: string | null;
   venue_name?: string | null;
   venue_address?: string | null;
   venue_lat?: number | null;
@@ -20,6 +21,7 @@ export interface CreateMatchInput {
   location: string;
   max_players: number;
   organizer_id: string;
+  venue_id?: string | null;
   venue_name?: string | null;
   venue_address?: string | null;
   venue_lat?: number | null;

@@ -1,8 +1,9 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { matchService } from '../services/matchService';
-import GeoapifyAutocomplete, { type PlaceResult } from '../components/GeoapifyAutocomplete';
+import { venueService } from '../services/venueService';
+import type { Venue } from '../types/venue';
 
 export default function CreateMatchPage() {
   const navigate = useNavigate();
@@ -10,26 +11,28 @@ export default function CreateMatchPage() {
   
   const [title, setTitle] = useState('');
   const [scheduledAt, setScheduledAt] = useState('');
-  const [maxPlayers, setMaxPlayers] = useState(10);
+  const [selectedVenueId, setSelectedVenueId] = useState('');
+  
+  const [venues, setVenues] = useState<Venue[]>([]);
+  const [loadingVenues, setLoadingVenues] = useState(true);
+  
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Venue state — null means no suggestion was selected
-  const [locationText, setLocationText] = useState('');
-  const [venueData, setVenueData] = useState<PlaceResult | null>(null);
-
   const isSuspended = profile?.status === 'SUSPENDED';
 
-  const handlePlaceSelect = useCallback((place: PlaceResult) => {
-    setVenueData(place);
-    setLocationText(place.name || place.address);
+  useEffect(() => {
+    const fetchVenues = async () => {
+      const { data, error } = await venueService.getActiveVenues();
+      if (!error && data) {
+        setVenues(data);
+      }
+      setLoadingVenues(false);
+    };
+    void fetchVenues();
   }, []);
 
-  const handleManualInput = useCallback((text: string) => {
-    // User is typing manually → clear any previous selection
-    setVenueData(null);
-    setLocationText(text);
-  }, []);
+  const selectedVenue = venues.find(v => v.id === selectedVenueId);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,8 +40,8 @@ export default function CreateMatchPage() {
     
     setErrorMsg('');
 
-    if (!locationText.trim()) {
-      setErrorMsg('Por favor, indica una ubicación para el partido.');
+    if (!selectedVenue) {
+      setErrorMsg('Por favor, selecciona un campo para el partido.');
       return;
     }
 
@@ -54,16 +57,14 @@ export default function CreateMatchPage() {
       const { error } = await matchService.createMatch({
           title,
           scheduled_at: selectedDate.toISOString(),
-          location: venueData
-            ? (venueData.address || venueData.name)
-            : locationText.trim(),
-          max_players: maxPlayers,
+          location: selectedVenue.address,
+          max_players: selectedVenue.max_players,
           organizer_id: user.id,
-          // Only set venue fields if user selected a suggestion
-          venue_name: venueData?.name || null,
-          venue_address: venueData?.address || null,
-          venue_lat: venueData?.lat || null,
-          venue_lng: venueData?.lng || null,
+          venue_id: selectedVenue.id,
+          venue_name: selectedVenue.name,
+          venue_address: selectedVenue.address,
+          venue_lat: selectedVenue.lat,
+          venue_lng: selectedVenue.lng,
       });
 
       if (error) setErrorMsg(`Error de servidor: ${error.message}`);
@@ -73,6 +74,15 @@ export default function CreateMatchPage() {
       setErrorMsg(`Excepción local: ${message}`);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const formatPitchType = (type: string) => {
+    switch (type) {
+      case 'FOOTBALL_11': return 'Fútbol 11';
+      case 'FOOTBALL_7': return 'Fútbol 7';
+      case 'FUTSAL': return 'Fútbol Sala';
+      default: return type;
     }
   };
 
@@ -109,44 +119,58 @@ export default function CreateMatchPage() {
           </div>
           
           <div className="form-group mb-0">
-            <label>Ubicación / Instalación *</label>
-            <GeoapifyAutocomplete
-              placeholder="Ej: Polideportivo Municipal"
-              required
-              value={locationText}
-              onPlaceSelect={handlePlaceSelect}
-              onManualInput={handleManualInput}
-            />
-            {venueData && (
-              <p style={{
-                margin: '6px 0 0 0',
-                fontSize: '12px',
-                color: 'var(--success, #10b981)',
-                fontWeight: 500,
-              }}>
-                {venueData.address}
-              </p>
+            <label>Instalación Deportiva *</label>
+            {loadingVenues ? (
+               <div className="form-control" style={{ opacity: 0.7 }}>Cargando campos disponibles...</div>
+            ) : (
+               <select 
+                 className="form-control"
+                 required
+                 value={selectedVenueId}
+                 onChange={e => setSelectedVenueId(e.target.value)}
+                 style={{ appearance: 'auto' }}
+               >
+                 <option value="" disabled>-- Selecciona un campo --</option>
+                 {venues.map(v => (
+                   <option key={v.id} value={v.id}>
+                     {v.name}
+                   </option>
+                 ))}
+               </select>
             )}
-          </div>
-          
-          <div className="form-group mb-0">
-            <label>Límite de Jugadores *</label>
-            <input 
-              className="form-control" 
-              type="number" 
-              min="2" 
-              max="22" 
-              required 
-              value={maxPlayers} 
-              onChange={e => setMaxPlayers(Number(e.target.value))} 
-            />
+            
+            {selectedVenue && (
+              <div style={{ marginTop: '12px', padding: '16px', backgroundColor: 'rgba(39, 39, 42, 0.4)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-main)', marginBottom: '4px' }}>
+                  {selectedVenue.name}
+                </div>
+                <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '12px' }}>
+                  {selectedVenue.address}
+                </div>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  <div style={{ fontSize: '13px' }}>
+                    <span style={{ color: 'var(--text-muted)' }}>Tipo: </span>
+                    <strong style={{ color: 'var(--primary)' }}>{formatPitchType(selectedVenue.pitch_type)}</strong>
+                  </div>
+                  <div style={{ fontSize: '13px' }}>
+                    <span style={{ color: 'var(--text-muted)' }}>Modalidad: </span>
+                    <strong style={{ color: 'var(--text-main)' }}>{selectedVenue.players_per_team} vs {selectedVenue.players_per_team}</strong>
+                  </div>
+                  <div style={{ fontSize: '13px', gridColumn: '1 / -1' }}>
+                    <span style={{ color: 'var(--text-muted)' }}>Aforo máximo: </span>
+                    <strong style={{ color: 'var(--text-main)' }}>{selectedVenue.max_players} jugadores</strong>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
           
           <div className="flex-between mt-6 pt-6" style={{ borderTop: '1px solid var(--border-color)' }}>
             <button type="button" className="btn btn-secondary" onClick={() => navigate('/')}>
               Descartar
             </button>
-            <button type="submit" disabled={loading} className="btn btn-primary" style={{ minWidth: '180px' }}>
+            <button type="submit" disabled={loading || !selectedVenueId} className="btn btn-primary" style={{ minWidth: '180px' }}>
               {loading ? 'Procesando...' : 'Lanzar Convocatoria'}
             </button>
           </div>

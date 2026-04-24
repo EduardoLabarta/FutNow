@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { matchService } from '../services/matchService';
 import { supabase } from '../lib/supabase';
 import type { Match, MatchParticipant } from '../types/match';
+import { venueService } from '../services/venueService';
+import type { Venue } from '../types/venue';
 
 export default function MatchDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -12,6 +14,7 @@ export default function MatchDetailPage() {
 
   const [match, setMatch] = useState<Match | null>(null);
   const [participants, setParticipants] = useState<MatchParticipant[]>([]);
+  const [venue, setVenue] = useState<Venue | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -28,6 +31,7 @@ export default function MatchDetailPage() {
     if (matchRes.error || !matchRes.data) {
       setMatch(null);
       setParticipants([]);
+      setVenue(null);
       setMessage('Error al cargar datos. El partido no existe o ha sido cancelado.');
       setLoading(false);
       return; 
@@ -35,6 +39,14 @@ export default function MatchDetailPage() {
 
     setMatch(matchRes.data);
     if (!partsRes.error) setParticipants(partsRes.data || []);
+    
+    if (matchRes.data.venue_id) {
+      const venueRes = await venueService.getVenueById(matchRes.data.venue_id);
+      if (!venueRes.error && venueRes.data) {
+        setVenue(venueRes.data);
+      }
+    }
+    
     setLoading(false);
   };
 
@@ -128,6 +140,16 @@ export default function MatchDetailPage() {
                   {match.venue_address && (
                     <div className="text-muted" style={{ fontSize: '14px', marginTop: '4px' }}>
                       {match.venue_address}
+                    </div>
+                  )}
+                  {venue && (
+                    <div className="text-muted" style={{ fontSize: '14px', marginTop: '4px' }}>
+                      <span style={{ color: 'var(--primary)' }}>{
+                        venue.pitch_type === 'FOOTBALL_11' ? 'Fútbol 11' :
+                        venue.pitch_type === 'FOOTBALL_7' ? 'Fútbol 7' :
+                        venue.pitch_type === 'FUTSAL' ? 'Fútbol Sala' : venue.pitch_type
+                      }</span>
+                      <span> ({venue.players_per_team} vs {venue.players_per_team})</span>
                     </div>
                   )}
                 </div>

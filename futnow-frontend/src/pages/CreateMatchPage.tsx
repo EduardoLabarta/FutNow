@@ -4,7 +4,19 @@ import { useAuth } from '../context/AuthContext';
 import { matchService } from '../services/matchService';
 import { venueService } from '../services/venueService';
 import type { Venue } from '../types/venue';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+
+function MapUpdater({ selectedVenue }: { selectedVenue: Venue | undefined }) {
+  const map = useMap();
+  
+  useEffect(() => {
+    if (selectedVenue) {
+      map.flyTo([selectedVenue.lat, selectedVenue.lng], 15, { duration: 1.2 });
+    }
+  }, [selectedVenue, map]);
+
+  return null;
+}
 
 export default function CreateMatchPage() {
   const navigate = useNavigate();
@@ -136,6 +148,7 @@ export default function CreateMatchPage() {
                      zoom={11} 
                      style={{ height: '100%', width: '100%' }}
                    >
+                     <MapUpdater selectedVenue={selectedVenue} />
                      <TileLayer
                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

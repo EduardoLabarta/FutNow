@@ -99,8 +99,8 @@ export default function CreateMatchPage() {
     }
   };
 
-  // Coordenadas centrales de Madrid como fallback inicial
-  const defaultCenter: [number, number] = [40.4168, -3.7038];
+  // Coordenadas centrales entre Sanlúcar, Chipiona y Jerez
+  const defaultCenter: [number, number] = [36.75, -6.26];
 
   return (
     <div className="page-container flex-center" style={{ padding: '20px' }}>

@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase';
 import type { Match, MatchParticipant } from '../types/match';
 import { venueService } from '../services/venueService';
 import type { Venue } from '../types/venue';
+import { MapContainer, TileLayer, Marker } from 'react-leaflet';
 
 export default function MatchDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -152,6 +153,23 @@ export default function MatchDetailPage() {
                       <span> ({venue.players_per_team} vs {venue.players_per_team})</span>
                     </div>
                   )}
+                  {match.venue_lat && match.venue_lng && (
+                    <div style={{ height: '200px', width: '100%', marginTop: '16px', borderRadius: 'var(--radius-md)', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+                      <MapContainer 
+                        center={[match.venue_lat, match.venue_lng]} 
+                        zoom={15} 
+                        style={{ height: '100%', width: '100%' }}
+                        scrollWheelZoom={false}
+                      >
+                        <TileLayer
+                          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        />
+                        <Marker position={[match.venue_lat, match.venue_lng]} />
+                      </MapContainer>
+                    </div>
+                  )}
+                  
                 </div>
               ) : (
                 <div className="text-main font-semibold" style={{ fontSize: '18px' }}>{match.location}</div>

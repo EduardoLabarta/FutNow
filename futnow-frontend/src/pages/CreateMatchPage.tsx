@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { matchService } from '../services/matchService';
 import { venueService } from '../services/venueService';
 import type { Venue } from '../types/venue';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 
 export default function CreateMatchPage() {
   const navigate = useNavigate();
@@ -86,6 +87,9 @@ export default function CreateMatchPage() {
     }
   };
 
+  // Coordenadas centrales de Madrid como fallback inicial
+  const defaultCenter: [number, number] = [40.4168, -3.7038];
+
   return (
     <div className="page-container flex-center" style={{ padding: '20px' }}>
       <div className="card" style={{ width: '100%', maxWidth: '600px', padding: '40px' }}>
@@ -120,27 +124,62 @@ export default function CreateMatchPage() {
           
           <div className="form-group mb-0">
             <label>Instalación Deportiva *</label>
+            
             {loadingVenues ? (
                <div className="form-control" style={{ opacity: 0.7 }}>Cargando campos disponibles...</div>
             ) : (
-               <select 
-                 className="form-control"
-                 required
-                 value={selectedVenueId}
-                 onChange={e => setSelectedVenueId(e.target.value)}
-                 style={{ appearance: 'auto' }}
-               >
-                 <option value="" disabled>-- Selecciona un campo --</option>
-                 {venues.map(v => (
-                   <option key={v.id} value={v.id}>
-                     {v.name}
-                   </option>
-                 ))}
-               </select>
+               <>
+                 {/* Mapa de Selección */}
+                 <div style={{ height: '300px', width: '100%', marginBottom: '16px', borderRadius: 'var(--radius-md)', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+                   <MapContainer 
+                     center={defaultCenter} 
+                     zoom={11} 
+                     style={{ height: '100%', width: '100%' }}
+                   >
+                     <TileLayer
+                       attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                     />
+                     {venues.map(v => (
+                       <Marker 
+                         key={v.id} 
+                         position={[v.lat, v.lng]}
+                         eventHandlers={{
+                           click: () => {
+                             setSelectedVenueId(v.id);
+                           },
+                         }}
+                       >
+                         <Popup>
+                           <strong>{v.name}</strong><br />
+                           {v.address}<br />
+                           <em>{formatPitchType(v.pitch_type)}</em>
+                         </Popup>
+                       </Marker>
+                     ))}
+                   </MapContainer>
+                 </div>
+
+                 {/* Selector Textual (Apoyo/Sincronizado) */}
+                 <select 
+                   className="form-control"
+                   required
+                   value={selectedVenueId}
+                   onChange={e => setSelectedVenueId(e.target.value)}
+                   style={{ appearance: 'auto' }}
+                 >
+                   <option value="" disabled>-- O selecciona desde la lista --</option>
+                   {venues.map(v => (
+                     <option key={v.id} value={v.id}>
+                       {v.name}
+                     </option>
+                   ))}
+                 </select>
+               </>
             )}
             
             {selectedVenue && (
-              <div style={{ marginTop: '12px', padding: '16px', backgroundColor: 'rgba(39, 39, 42, 0.4)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+              <div style={{ marginTop: '16px', padding: '16px', backgroundColor: 'rgba(39, 39, 42, 0.4)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
                 <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-main)', marginBottom: '4px' }}>
                   {selectedVenue.name}
                 </div>

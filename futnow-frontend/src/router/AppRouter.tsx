@@ -7,6 +7,7 @@ import MatchDetailPage from '../pages/MatchDetailPage';
 import ProfilePage from '../pages/ProfilePage';
 import MyMatchesPage from '../pages/MyMatchesPage';
 import AdminPage from '../pages/AdminPage';
+import NotificationsPage from '../pages/NotificationsPage';
 import { ProtectedRoute } from './ProtectedRoute';
 import { AdminRoute } from './AdminRoute';
 import { AppLayout } from '../components/layout/AppLayout';
@@ -26,6 +27,7 @@ export const AppRouter = () => {
             <Route path="/my-matches" element={<MyMatchesPage />} />
             <Route path="/matches/new" element={<CreateMatchPage />} />
             <Route path="/matches/:id" element={<MatchDetailPage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
             
             {/* Admin Dedicated Ecosystem */}
             <Route element={<AdminRoute />}>

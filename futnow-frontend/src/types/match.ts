@@ -31,8 +31,6 @@ export interface CreateMatchInput {
 export interface MatchParticipant {
   id: string;
   user_id: string;
-  team_side: 'HOME' | 'AWAY' | null;
-  pitch_slot: number | null;
   profiles: {
     name: string;
     avatar_id: number | null;

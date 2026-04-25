@@ -37,8 +37,6 @@ export const matchService = {
       .select(`
         id,
         user_id,
-        team_side,
-        pitch_slot,
         profiles (
           name,
           avatar_id,

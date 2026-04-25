@@ -153,7 +153,7 @@ export default function MatchDetailPage() {
                       <span> ({venue.players_per_team} vs {venue.players_per_team})</span>
                     </div>
                   )}
-                  {match.venue_lat && match.venue_lng && (
+                  {match.venue_lat != null && match.venue_lng != null && (
                     <div style={{ height: '200px', width: '100%', marginTop: '16px', borderRadius: 'var(--radius-md)', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
                       <MapContainer 
                         center={[match.venue_lat, match.venue_lng]} 
@@ -176,7 +176,7 @@ export default function MatchDetailPage() {
               )}
               <a
                 href={
-                  match.venue_lat && match.venue_lng
+                  match.venue_lat != null && match.venue_lng != null
                     ? `https://www.google.com/maps/dir/?api=1&destination=${match.venue_lat},${match.venue_lng}`
                     : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(match.venue_address || match.location)}`
                 }

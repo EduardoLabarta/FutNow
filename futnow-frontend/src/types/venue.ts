@@ -4,11 +4,13 @@ export interface Venue {
   id: string;
   name: string;
   address: string;
-  lat: number;
-  lng: number;
+  lat: number | null;
+  lng: number | null;
   pitch_type: PitchType;
   players_per_team: number;
   max_players: number;
   is_active: boolean;
   created_at: string;
 }
+
+export type CreateVenueInput = Omit<Venue, 'id' | 'created_at'>;

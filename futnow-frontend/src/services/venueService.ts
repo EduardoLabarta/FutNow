@@ -20,5 +20,40 @@ export const venueService = {
       .maybeSingle();
       
     return { data, error };
+  },
+
+  getAllVenuesAdmin: async (): Promise<{ data: Venue[] | null; error: any }> => {
+    const { data, error } = await supabase
+      .from('venues')
+      .select('*')
+      .order('name', { ascending: true });
+    
+    return { data, error };
+  },
+
+  createVenue: async (venueData: import('../types/venue').CreateVenueInput): Promise<{ error: any }> => {
+    const { error } = await supabase
+      .from('venues')
+      .insert([venueData]);
+    
+    return { error };
+  },
+
+  updateVenue: async (id: string, venueData: Partial<import('../types/venue').CreateVenueInput>): Promise<{ error: any }> => {
+    const { error } = await supabase
+      .from('venues')
+      .update(venueData)
+      .eq('id', id);
+    
+    return { error };
+  },
+
+  toggleVenueStatus: async (id: string, currentStatus: boolean): Promise<{ error: any }> => {
+    const { error } = await supabase
+      .from('venues')
+      .update({ is_active: !currentStatus })
+      .eq('id', id);
+    
+    return { error };
   }
 };

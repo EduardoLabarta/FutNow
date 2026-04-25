@@ -10,7 +10,7 @@ function MapUpdater({ selectedVenue }: { selectedVenue: Venue | undefined }) {
   const map = useMap();
   
   useEffect(() => {
-    if (selectedVenue) {
+    if (selectedVenue && selectedVenue.lat != null && selectedVenue.lng != null) {
       map.flyTo([selectedVenue.lat, selectedVenue.lng], 15, { duration: 1.2 });
     }
   }, [selectedVenue, map]);
@@ -153,10 +153,10 @@ export default function CreateMatchPage() {
                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                      />
-                     {venues.map(v => (
+                     {venues.filter(v => v.lat != null && v.lng != null).map(v => (
                        <Marker 
                          key={v.id} 
-                         position={[v.lat, v.lng]}
+                         position={[v.lat as number, v.lng as number]}
                          eventHandlers={{
                            click: () => {
                              setSelectedVenueId(v.id);

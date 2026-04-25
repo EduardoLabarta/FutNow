@@ -7,6 +7,7 @@ import type { Match, MatchParticipant } from '../types/match';
 import { venueService } from '../services/venueService';
 import type { Venue } from '../types/venue';
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+import TacticalPitch from '../components/match/TacticalPitch';
 
 export default function MatchDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -211,39 +212,65 @@ export default function MatchDetailPage() {
           </div>
         </div>
 
-        {/* Lista de Participantes */}
-        <div className="card" style={{ margin: 0 }}>
-          <h3 className="card-title text-main">Alineación Confirmada</h3>
-          {participants.length === 0 ? (
-            <div className="flex-column flex-center text-center" style={{ padding: '40px 0' }}>
-              <div style={{ fontSize: '32px', marginBottom: '12px', opacity: 0.5 }}></div>
-              <p className="text-muted m-0">Aún no hay inscritos en este partido.</p>
-            </div>
-          ) : (
-            <div className="flex-column gap-3 mt-4">
-              {participants.map(p => (
-                <div key={p.id} className="flex-center" style={{ justifyContent: 'flex-start', gap: '16px', padding: '14px 20px', backgroundColor: 'rgba(39, 39, 42, 0.4)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
-                  {p.profiles?.avatar_path ? (
-                    <img 
-                      src={supabase.storage.from('avatars').getPublicUrl(p.profiles.avatar_path).data.publicUrl} 
-                      alt="Avatar" 
-                      style={{ width: '42px', height: '42px', borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--primary)' }} 
-                    />
-                  ) : (
-                    <div className="flex-center font-semibold" style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: 'var(--primary-light)', color: 'var(--primary)', fontSize: '18px', border: '1px solid var(--primary)' }}>
-                      {p.profiles?.name.charAt(0).toUpperCase() || '?'}
-                    </div>
-                  )}
-                  <div style={{ flex: 1 }}>
-                    <div className="font-semibold text-main" style={{ fontSize: '15px' }}>
-                      {p.profiles?.name || 'Usuario Anónimo'}
-                    </div>
-                    {p.user_id === user?.id && <div className="text-sm" style={{ color: 'var(--primary)', fontWeight: 500 }}>Tú (Confirmado)</div>}
-                  </div>
-                </div>
-              ))}
+        {/* Lista de Participantes / Pizarra Táctica */}
+        <div className="card" style={{ margin: 0, display: 'flex', flexDirection: 'column' }}>
+          <div className="flex-between">
+            <h3 className="card-title text-main m-0">Alineación Confirmada</h3>
+          </div>
+          
+          {venue?.pitch_type && (
+            <div className="mt-4 mb-4">
+              <TacticalPitch pitchType={venue.pitch_type} participants={participants} />
             </div>
           )}
+
+          {(() => {
+            // Filtrar jugadores sin asignar (compatibilidad con partidos antiguos o nuevos apuntados sin elegir)
+            const unassigned = participants.filter(p => !p.team_side || p.pitch_slot == null);
+            
+            if (participants.length === 0) {
+              return (
+                <div className="flex-column flex-center text-center" style={{ padding: '40px 0' }}>
+                  <p className="text-muted m-0">Aún no hay inscritos en este partido.</p>
+                </div>
+              );
+            }
+
+            if (unassigned.length > 0) {
+              return (
+                <div className="mt-4">
+                  <h4 className="text-muted mb-3" style={{ fontSize: '15px' }}>
+                    {venue?.pitch_type ? 'Jugadores sin posición asignada' : 'Lista de jugadores'}
+                  </h4>
+                  <div className="flex-column gap-3">
+                    {unassigned.map(p => (
+                      <div key={p.id} className="flex-center" style={{ justifyContent: 'flex-start', gap: '16px', padding: '14px 20px', backgroundColor: 'rgba(39, 39, 42, 0.4)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                        {p.profiles?.avatar_path ? (
+                          <img 
+                            src={supabase.storage.from('avatars').getPublicUrl(p.profiles.avatar_path).data.publicUrl} 
+                            alt="Avatar" 
+                            style={{ width: '42px', height: '42px', borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--primary)' }} 
+                          />
+                        ) : (
+                          <div className="flex-center font-semibold" style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: 'var(--primary-light)', color: 'var(--primary)', fontSize: '18px', border: '1px solid var(--primary)' }}>
+                            {p.profiles?.name.charAt(0).toUpperCase() || '?'}
+                          </div>
+                        )}
+                        <div style={{ flex: 1 }}>
+                          <div className="font-semibold text-main" style={{ fontSize: '15px' }}>
+                            {p.profiles?.name || 'Usuario Anónimo'}
+                          </div>
+                          {p.user_id === user?.id && <div className="text-sm" style={{ color: 'var(--primary)', fontWeight: 500 }}>Tú (Confirmado)</div>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            }
+            
+            return null;
+          })()}
         </div>
 
       </div>

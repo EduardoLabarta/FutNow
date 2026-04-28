@@ -37,11 +37,32 @@ export default function MyMatchesPage() {
     };
     void loadData();
     return () => { isMounted = false; };
-  }, [user]);
+  }, [user?.id]);
 
   if (!user || !profile) return <div className="loading-state">Sincronizando identidad...</div>;
 
   const isSuspended = profile.status === 'SUSPENDED';
+
+  // Lógica de resumen
+  const totalOrganized = organized.length;
+  const totalJoined = joined.length;
+  
+  const cancelledOrganized = organized.filter(m => m.status === 'CANCELLED').length;
+  const cancelledJoined = joined.filter(j => j.matches?.status === 'CANCELLED').length;
+  const totalCancelled = cancelledOrganized + cancelledJoined;
+
+  const now = new Date();
+  const upcomingOrganized = organized.filter(m => m.status === 'OPEN' && new Date(m.scheduled_at) > now);
+  const upcomingJoinedMatches = joined
+    .filter(j => j.matches && j.matches.status === 'OPEN' && new Date(j.matches.scheduled_at) > now)
+    .map(j => j.matches as Match);
+    
+  const upcomingMap = new Map<string, Match>();
+  upcomingOrganized.forEach(m => upcomingMap.set(m.id, m));
+  upcomingJoinedMatches.forEach(m => upcomingMap.set(m.id, m));
+  
+  const upcomingMatches = Array.from(upcomingMap.values()).sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime());
+  const nextMatch = upcomingMatches.length > 0 ? upcomingMatches[0] : null;
 
   return (
     <div className="page-container" style={{ maxWidth: '1000px', margin: '0 auto' }}>
@@ -59,7 +80,47 @@ export default function MyMatchesPage() {
       {loading ? (
         <div className="loading-state">Cargando tus partidos...</div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
+        <>
+          <section className="mb-8">
+            <h3 className="mb-4" style={{ fontSize: '20px', fontWeight: 600 }}>Resumen de Actividad</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+              
+              <div className="card" style={{ padding: '20px', margin: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', backgroundColor: 'var(--bg-color)', borderTop: '3px solid var(--primary)' }}>
+                <span className="text-muted text-sm mb-2" style={{ fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Organizados</span>
+                <span className="text-main" style={{ fontSize: '36px', fontWeight: 700, lineHeight: 1 }}>{totalOrganized}</span>
+              </div>
+              
+              <div className="card" style={{ padding: '20px', margin: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', backgroundColor: 'var(--bg-color)', borderTop: '3px solid var(--success)' }}>
+                <span className="text-muted text-sm mb-2" style={{ fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Participaciones</span>
+                <span className="text-main" style={{ fontSize: '36px', fontWeight: 700, lineHeight: 1 }}>{totalJoined}</span>
+              </div>
+              
+              <div className="card" style={{ padding: '20px', margin: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', backgroundColor: 'var(--bg-color)', borderTop: '3px solid var(--danger)' }}>
+                <span className="text-muted text-sm mb-2" style={{ fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Cancelados</span>
+                <span className="text-main" style={{ fontSize: '36px', fontWeight: 700, lineHeight: 1 }}>{totalCancelled}</span>
+              </div>
+
+              <div className="card" style={{ padding: '20px', margin: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', backgroundColor: 'var(--bg-color)', borderTop: '3px solid var(--warning)', gridColumn: '1 / -1' }}>
+                <span className="text-muted text-sm mb-2" style={{ fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Próximo Partido</span>
+                {nextMatch ? (
+                  <>
+                    <strong className="text-main mb-1" style={{ fontSize: '18px' }}>{nextMatch.title}</strong>
+                    <span className="text-muted text-sm mb-3">
+                      {new Date(nextMatch.scheduled_at).toLocaleString(undefined, { dateStyle: 'full', timeStyle: 'short' })}
+                    </span>
+                    <button onClick={() => navigate(`/matches/${nextMatch.id}`)} className="btn btn-primary" style={{ padding: '6px 16px', fontSize: '14px' }}>
+                      Ver Detalles
+                    </button>
+                  </>
+                ) : (
+                  <span className="text-muted" style={{ fontSize: '16px' }}>No hay próximos partidos programados.</span>
+                )}
+              </div>
+
+            </div>
+          </section>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
           
           <section className="card card-container" style={{ margin: 0, backgroundColor: 'var(--primary-light)', borderColor: 'var(--border-color)' }}>
             <h3 className="card-title text-primary" style={{ borderBottomColor: 'var(--border-color)' }}>Partidos que Organizo</h3>
@@ -130,8 +191,8 @@ export default function MyMatchesPage() {
               </div>
             )}
           </section>
-
         </div>
+        </>
       )}
     </div>
   );

@@ -165,7 +165,18 @@ export default function ProfilePage() {
             
             <div className="form-group mb-0">
               <label>Demarcación Preferida (Opcional)</label>
-              <input className="form-control" type="text" placeholder="Ej: Centrocampista..." disabled={isSuspended} value={preferredPosition} onChange={e => setPreferredPosition(e.target.value)} />
+              <select 
+                className="form-control" 
+                disabled={isSuspended} 
+                value={preferredPosition} 
+                onChange={e => setPreferredPosition(e.target.value)}
+              >
+                <option value="">No definida</option>
+                <option value="Portero">Portero</option>
+                <option value="Defensa">Defensa</option>
+                <option value="Centrocampista">Centrocampista</option>
+                <option value="Delantero">Delantero</option>
+              </select>
             </div>
             
             {!isSuspended && (

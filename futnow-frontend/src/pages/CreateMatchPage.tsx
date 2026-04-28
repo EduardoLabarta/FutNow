@@ -103,7 +103,7 @@ export default function CreateMatchPage() {
   const defaultCenter: [number, number] = [36.75, -6.26];
 
   return (
-    <div className="page-container flex-center" style={{ padding: '20px' }}>
+    <div className="page-container flex-center" style={{ padding: '40px 20px' }}>
       <div className="card" style={{ width: '100%', maxWidth: '600px', padding: '40px' }}>
         <h2 className="mb-6" style={{ fontSize: '28px' }}>Crear Nuevo Encuentro</h2>
 

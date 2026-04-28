@@ -66,7 +66,7 @@ export default function MyMatchesPage() {
 
   return (
     <div className="page-container" style={{ maxWidth: '1000px', margin: '0 auto' }}>
-      <h2 style={{ marginBottom: '8px' }}>Panel Actividad Deportiva Personal</h2>
+      <h2 style={{ marginBottom: '8px', marginTop: '20px' }}>Panel Actividad Deportiva Personal</h2>
       <p className="text-muted mb-6">Vista de tus partidos organizados y próximos encuentros.</p>
 
       {isSuspended && (

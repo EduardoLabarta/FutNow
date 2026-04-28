@@ -70,7 +70,7 @@ export const AppLayout = () => {
         )}
       </header>
 
-      <main style={{ flex: 1, padding: '40px 24px', maxWidth: '1100px', margin: '0 auto', width: '100%' }}>
+      <main style={{ flex: 1, padding: '64px 24px 40px', maxWidth: '1100px', margin: '0 auto', width: '100%' }}>
         <Outlet />
       </main>
 

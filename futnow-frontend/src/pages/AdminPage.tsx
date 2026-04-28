@@ -118,7 +118,7 @@ export default function AdminPage() {
     <div className="page-container" style={{ maxWidth: '1100px', margin: '0 auto' }}>
       <div className="flex-between mb-6">
         <div>
-          <h2 className="text-main" style={{ fontSize: '32px', marginBottom: '4px' }}>Centro de Mando</h2>
+          <h2 className="text-main" style={{ fontSize: '32px', marginBottom: '4px', marginTop: '20px' }}>Centro de Mando</h2>
           <p className="text-muted">Supervisión técnica de la plataforma FutNow.</p>
         </div>
         <button className="btn btn-secondary" onClick={() => void loadData()} disabled={loading}>

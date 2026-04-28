@@ -95,7 +95,7 @@ export default function ProfilePage() {
 
   return (
     <div className="page-container" style={{ maxWidth: '900px', margin: '0 auto' }}>
-      <h2 className="mb-6">Administración de Perfil</h2>
+      <h2 className="mb-6" style={{ marginTop: '20px' }}>Administración de Perfil</h2>
       
       <div className="grid-responsive">
         

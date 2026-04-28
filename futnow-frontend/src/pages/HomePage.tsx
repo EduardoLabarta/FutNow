@@ -38,7 +38,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="page-container">
+    <div className="page-container" style={{ paddingTop: '20px' }}>
       {isSuspended && (
         <div className="alert alert-danger mb-6">
           <strong>Cuenta Suspendida:</strong> No puedes organizar ni unirte a nuevos partidos. Acceso de solo lectura.

@@ -44,7 +44,7 @@ export default function RegisterPage() {
     <div className="auth-container">
       <div className="auth-card">
         <div className="flex-center" style={{ marginBottom: '32px' }}>
-          <img src={logo} alt="FutNow" style={{ width: '220px', height: 'auto' }} />
+          <img src={logo} alt="FutNow" style={{ width: '300px', height: 'auto' }} />
         </div>
         
         <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '15px', fontWeight: 400, margin: '0 0 28px 0', lineHeight: 1.5 }}>

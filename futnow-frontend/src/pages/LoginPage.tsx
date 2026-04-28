@@ -31,11 +31,13 @@ export default function LoginPage() {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <div className="flex-center mb-6">
-          <img src={logo} alt="FutNow" style={{ width: '250px', height: 'auto' }} />
+        <div className="flex-center" style={{ marginBottom: '32px' }}>
+          <img src={logo} alt="FutNow" style={{ width: '220px', height: 'auto' }} />
         </div>
         
-        <h2 className="text-muted text-center mb-6" style={{ fontSize: '16px', fontWeight: 500 }}>Inicia sesión en tu cuenta deportiva</h2>
+        <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '15px', fontWeight: 400, margin: '0 0 28px 0', lineHeight: 1.5 }}>
+          Bienvenido de vuelta. Introduce tus credenciales para acceder.
+        </p>
         
         {errorMsg && <div className="alert alert-danger">{errorMsg}</div>}
 
@@ -62,30 +64,33 @@ export default function LoginPage() {
               onChange={e => setPassword(e.target.value)} 
             />
           </div>
-          <button type="submit" className="btn btn-primary btn-block mt-2">
-             Entrar al Sistema
+          <button type="submit" className="btn btn-primary btn-block" style={{ marginTop: '8px', padding: '14px 24px', fontSize: '15px' }}>
+            Iniciar Sesión
           </button>
+
+          <div className="auth-divider">
+            <span>o</span>
+          </div>
 
           <button 
             type="button" 
             onClick={handleGoogleLogin} 
-            className="btn btn-secondary btn-block flex-center" 
-            style={{ gap: '10px', backgroundColor: 'white', color: '#374151', border: '1px solid #d1d5db' }}
+            className="btn btn-block flex-center btn-google" 
           >
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style={{ width: '18px', height: '18px' }} />
             Continuar con Google
           </button>
         </form>
         
-        <div className="flex-center" style={{ margin: '32px 0', gap: '12px' }}>
-          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color)' }}></div>
-          <span style={{ color: 'var(--text-light)', fontSize: '13px' }}>¿Eres nuevo?</span>
-          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color)' }}></div>
-        </div>
-        
-        <button type="button" onClick={() => navigate('/register')} className="btn btn-secondary btn-block">
-          Crear cuenta oficial
-        </button>
+        <p style={{ textAlign: 'center', margin: '32px 0 0 0', fontSize: '14px', color: 'var(--text-muted)' }}>
+          ¿No tienes cuenta?{' '}
+          <span 
+            onClick={() => navigate('/register')} 
+            style={{ color: 'var(--primary)', cursor: 'pointer', fontWeight: 600 }}
+          >
+            Regístrate
+          </span>
+        </p>
       </div>
     </div>
   );

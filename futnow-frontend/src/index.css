@@ -358,6 +358,41 @@ h1, h2, h3, h4 {
   backdrop-filter: blur(20px);
 }
 
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 8px 0;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background-color: var(--border-color);
+}
+
+.auth-divider span {
+  font-size: 13px;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-google {
+  background-color: #ffffff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  gap: 10px;
+  font-weight: 500;
+}
+
+.btn-google:hover:not(:disabled) {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
 /* --- Responsive Utilities --- */
 
 .grid-responsive {

@@ -105,8 +105,7 @@ export default function CreateMatchPage() {
   return (
     <div className="page-container flex-center" style={{ padding: '20px' }}>
       <div className="card" style={{ width: '100%', maxWidth: '600px', padding: '40px' }}>
-        <h2 className="mb-2" style={{ fontSize: '28px' }}>Crear Nuevo Encuentro</h2>
-        <p className="text-muted mb-6">Configura los detalles técnicos para tu próxima convocatoria deportiva.</p>
+        <h2 className="mb-6" style={{ fontSize: '28px' }}>Crear Nuevo Encuentro</h2>
 
         {errorMsg && <div className="alert alert-danger mb-4">{errorMsg}</div>}
 

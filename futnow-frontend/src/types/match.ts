@@ -35,6 +35,7 @@ export interface MatchParticipant {
     name: string;
     avatar_id: number | null;
     avatar_path: string | null;
+    preferred_position: string | null;
   } | null;
 }
 

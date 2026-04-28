@@ -40,7 +40,8 @@ export const matchService = {
         profiles (
           name,
           avatar_id,
-          avatar_path
+          avatar_path,
+          preferred_position
         )
       `)
       .eq('match_id', matchId)

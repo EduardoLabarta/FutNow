@@ -234,11 +234,14 @@ export default function MatchDetailPage() {
                       {p.profiles?.name.charAt(0).toUpperCase() || '?'}
                     </div>
                   )}
-                  <div style={{ flex: 1 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
                     <div className="font-semibold text-main" style={{ fontSize: '15px' }}>
                       {p.profiles?.name || 'Usuario Anónimo'}
                     </div>
-                    {p.user_id === user?.id && <div className="text-sm" style={{ color: 'var(--primary)', fontWeight: 500 }}>Tú (Confirmado)</div>}
+                    <div className="text-sm text-muted" style={{ marginTop: '2px' }}>
+                      {p.profiles?.preferred_position || 'Sin posición'}
+                      {p.user_id === user?.id && <span style={{ color: 'var(--primary)', fontWeight: 500, marginLeft: '8px' }}>· Tú</span>}
+                    </div>
                   </div>
                 </div>
               ))}

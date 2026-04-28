@@ -218,12 +218,12 @@ export default function CreateMatchPage() {
             )}
           </div>
           
-          <div className="flex-between mt-6 pt-6" style={{ borderTop: '1px solid var(--border-color)' }}>
-            <button type="button" className="btn btn-secondary" onClick={() => navigate('/')}>
-              Descartar
-            </button>
-            <button type="submit" disabled={loading || !selectedVenueId} className="btn btn-primary" style={{ minWidth: '180px' }}>
+          <div className="flex-column gap-4 mt-6 pt-6" style={{ borderTop: '1px solid var(--border-color)' }}>
+            <button type="submit" disabled={loading || !selectedVenueId} className="btn btn-primary btn-block">
               {loading ? 'Procesando...' : 'Lanzar Convocatoria'}
+            </button>
+            <button type="button" className="btn btn-secondary btn-block" onClick={() => navigate('/')}>
+              Descartar
             </button>
           </div>
         </form>

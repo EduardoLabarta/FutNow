@@ -83,7 +83,7 @@ export default function MyMatchesPage() {
         <>
           <section className="mb-8">
             <h3 className="mb-4" style={{ fontSize: '20px', fontWeight: 600 }}>Resumen de Actividad</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+            <div className="grid-responsive" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))' }}>
               
               <div className="card" style={{ padding: '20px', margin: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', backgroundColor: 'var(--bg-color)', borderTop: '3px solid var(--primary)' }}>
                 <span className="text-muted text-sm mb-2" style={{ fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Organizados</span>
@@ -120,7 +120,7 @@ export default function MyMatchesPage() {
             </div>
           </section>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
+          <div className="grid-responsive">
           
           <section className="card card-container" style={{ margin: 0, backgroundColor: 'var(--primary-light)', borderColor: 'var(--border-color)' }}>
             <h3 className="card-title text-primary" style={{ borderBottomColor: 'var(--border-color)' }}>Partidos que Organizo</h3>
@@ -132,7 +132,7 @@ export default function MyMatchesPage() {
               <div className="flex-column gap-4 mt-4">
                 {organized.map(m => (
                   <div key={m.id} className="card" style={{ margin: 0, padding: '20px' }}>
-                    <div className="flex-between mb-4">
+                    <div className="flex-between responsive-keep-row mb-4">
                       <h4 style={{ margin: 0, fontSize: '16px' }}>{m.title}</h4>
                       <span className={m.status === 'OPEN' ? 'badge badge-success' : 'badge badge-danger'}>{m.status}</span>
                     </div>
@@ -168,7 +168,7 @@ export default function MyMatchesPage() {
                    if (!m) return null;
                    return (
                       <div key={j.id} className="card" style={{ margin: 0, padding: '20px', backgroundColor: 'var(--bg-color)' }}>
-                        <div className="flex-between mb-4">
+                        <div className="flex-between responsive-keep-row mb-4">
                           <h4 style={{ margin: 0, fontSize: '16px' }}>{m.title}</h4>
                           <span className={m.status === 'OPEN' ? 'badge badge-success' : 'badge badge-danger'}>{m.status}</span>
                         </div>

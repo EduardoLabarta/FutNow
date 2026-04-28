@@ -117,7 +117,7 @@ export default function MatchDetailPage() {
         </span>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
+      <div className="grid-responsive">
         
         {/* Detalles del Partido */}
         <div className="card" style={{ borderTop: match.status === 'OPEN' ? '6px solid var(--success)' : '6px solid var(--danger)', margin: 0, boxShadow: match.status === 'OPEN' ? '0 0 20px rgba(16, 185, 129, 0.1)' : '0 0 20px rgba(244, 63, 94, 0.1)' }}>
@@ -230,7 +230,7 @@ export default function MatchDetailPage() {
                       style={{ width: '42px', height: '42px', borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--primary)' }} 
                     />
                   ) : (
-                    <div className="flex-center font-semibold" style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: 'var(--primary-light)', color: 'var(--primary)', fontSize: '18px', border: '1px solid var(--primary)' }}>
+                    <div className="flex-center font-semibold" style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: 'var(--primary-light)', color: 'var(--primary)', fontSize: '18px', border: '1px solid var(--primary)', minWidth: '42px' }}>
                       {p.profiles?.name.charAt(0).toUpperCase() || '?'}
                     </div>
                   )}

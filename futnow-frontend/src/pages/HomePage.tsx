@@ -55,19 +55,19 @@ export default function HomePage() {
               style={{ width: '56px', height: '56px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--primary)' }} 
             />
           ) : (
-            <div className="flex-center" style={{ width: '56px', height: '56px', borderRadius: '50%', backgroundColor: 'var(--secondary)', color: 'var(--text-main)', fontSize: '20px', fontWeight: 'bold' }}>
+            <div className="flex-center" style={{ width: '56px', height: '56px', borderRadius: '50%', backgroundColor: 'var(--secondary)', color: 'var(--text-main)', fontSize: '20px', fontWeight: 'bold', minWidth: '56px' }}>
               {(profile?.name || user?.email || '?')[0].toUpperCase()}
             </div>
           )}
           <div className="flex-column gap-1">
             <h2 style={{ margin: 0, fontSize: '20px', color: 'var(--primary)' }}>Hola, {profile?.name || user?.email}</h2>
-            <div className="flex-center" style={{ justifyContent: 'flex-start', gap: '12px', fontSize: '14px', color: 'var(--text-muted)' }}>
+            <div className="flex-center" style={{ justifyContent: 'flex-start', gap: '12px', fontSize: '14px', color: 'var(--text-muted)', flexWrap: 'wrap' }}>
               <span className={profile?.status === 'ACTIVE' ? 'badge badge-success' : 'badge badge-danger'}>{profile?.status}</span>
               <span>Posición: <strong className="text-main">{profile?.preferred_position || 'No definida'}</strong></span>
             </div>
           </div>
         </div>
-        <button className="btn btn-secondary" onClick={() => navigate('/profile')}>Mi Perfil</button>
+        <button className="btn btn-secondary btn-auto-width" onClick={() => navigate('/profile')}>Mi Perfil</button>
       </div>
 
       <div className="flex-between mb-6">
@@ -92,7 +92,7 @@ export default function HomePage() {
         )}
         
         {matches.length > 0 && (
-          <div style={{ display: 'grid', gap: '24px', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))' }}>
+          <div className="grid-responsive">
             {matches.map(m => (
                <div key={m.id} className="card flex-column" style={{ marginBottom: 0, height: '100%', padding: 0, overflow: 'hidden' }}>
                  <div style={{ padding: '24px', flex: 1 }}>
@@ -113,9 +113,9 @@ export default function HomePage() {
                       </div>
                     </div>
                  </div>
-                <div className="flex-between" style={{ padding: '16px 24px', backgroundColor: 'var(--bg-color)', borderTop: '1px solid var(--border-color)' }}>
+                <div className="flex-between responsive-keep-row" style={{ padding: '16px 24px', backgroundColor: 'var(--bg-color)', borderTop: '1px solid var(--border-color)' }}>
                   <span className={m.status === 'OPEN' ? 'badge badge-success' : 'badge badge-danger'}>{m.status}</span>
-                  <button className="btn btn-secondary" onClick={() => navigate(`/matches/${m.id}`)}>Desplegar</button>
+                  <button className="btn btn-secondary btn-auto-width" onClick={() => navigate(`/matches/${m.id}`)}>Desplegar</button>
                 </div>
               </div>
             ))}

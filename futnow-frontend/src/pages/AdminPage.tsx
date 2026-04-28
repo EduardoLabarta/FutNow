@@ -237,51 +237,51 @@ export default function AdminPage() {
                 <form onSubmit={(e) => void handleSaveVenue(e)} className="flex-column gap-4">
                   <div className="form-group">
                     <label className="form-label">Nombre del campo</label>
-                    <input type="text" className="form-input" value={venueForm.name} onChange={e => setVenueForm({...venueForm, name: e.target.value})} required />
+                    <input type="text" className="form-control" value={venueForm.name} onChange={e => setVenueForm({...venueForm, name: e.target.value})} required />
                   </div>
                   <div className="form-group">
                     <label className="form-label">Dirección</label>
-                    <input type="text" className="form-input" value={venueForm.address} onChange={e => setVenueForm({...venueForm, address: e.target.value})} required />
+                    <input type="text" className="form-control" value={venueForm.address} onChange={e => setVenueForm({...venueForm, address: e.target.value})} required />
                   </div>
                   <div className="flex-between gap-4">
-                    <div className="form-group" style={{ flex: 1 }}>
+                    <div className="form-group" style={{ flex: 1, width: '100%' }}>
                       <label className="form-label">Latitud (opcional)</label>
-                      <input type="number" step="any" className="form-input" value={venueForm.lat ?? ''} onChange={e => setVenueForm({...venueForm, lat: e.target.value === '' ? null : parseFloat(e.target.value)})} />
+                      <input type="number" step="any" className="form-control" value={venueForm.lat ?? ''} onChange={e => setVenueForm({...venueForm, lat: e.target.value === '' ? null : parseFloat(e.target.value)})} />
                     </div>
-                    <div className="form-group" style={{ flex: 1 }}>
+                    <div className="form-group" style={{ flex: 1, width: '100%' }}>
                       <label className="form-label">Longitud (opcional)</label>
-                      <input type="number" step="any" className="form-input" value={venueForm.lng ?? ''} onChange={e => setVenueForm({...venueForm, lng: e.target.value === '' ? null : parseFloat(e.target.value)})} />
+                      <input type="number" step="any" className="form-control" value={venueForm.lng ?? ''} onChange={e => setVenueForm({...venueForm, lng: e.target.value === '' ? null : parseFloat(e.target.value)})} />
                     </div>
                   </div>
                   <div className="form-group">
                     <label className="form-label">Tipo de Campo</label>
-                    <select className="form-input" value={venueForm.pitch_type} onChange={e => setVenueForm({...venueForm, pitch_type: e.target.value as PitchType})}>
+                    <select className="form-control" value={venueForm.pitch_type} onChange={e => setVenueForm({...venueForm, pitch_type: e.target.value as PitchType})}>
                       <option value="FOOTBALL_11">Fútbol 11</option>
                       <option value="FOOTBALL_7">Fútbol 7</option>
                       <option value="FUTSAL">Fútbol Sala</option>
                     </select>
                   </div>
                   <div className="flex-between gap-4">
-                    <div className="form-group" style={{ flex: 1 }}>
+                    <div className="form-group" style={{ flex: 1, width: '100%' }}>
                       <label className="form-label">Jugadores por equipo</label>
-                      <input type="number" className="form-input" value={venueForm.players_per_team} onChange={e => setVenueForm({...venueForm, players_per_team: parseInt(e.target.value) || 0})} required />
+                      <input type="number" className="form-control" value={venueForm.players_per_team} onChange={e => setVenueForm({...venueForm, players_per_team: parseInt(e.target.value) || 0})} required />
                     </div>
-                    <div className="form-group" style={{ flex: 1 }}>
+                    <div className="form-group" style={{ flex: 1, width: '100%' }}>
                       <label className="form-label">Jugadores máximos (total)</label>
-                      <input type="number" className="form-input" value={venueForm.max_players} onChange={e => setVenueForm({...venueForm, max_players: parseInt(e.target.value) || 0})} required />
+                      <input type="number" className="form-control" value={venueForm.max_players} onChange={e => setVenueForm({...venueForm, max_players: parseInt(e.target.value) || 0})} required />
                     </div>
                   </div>
-                  <div className="form-group flex-between" style={{ justifyContent: 'flex-start', gap: '12px' }}>
+                  <div className="form-group flex-between responsive-keep-row" style={{ justifyContent: 'flex-start', gap: '12px' }}>
                     <input type="checkbox" id="isActive" checked={venueForm.is_active} onChange={e => setVenueForm({...venueForm, is_active: e.target.checked})} style={{ width: 'auto' }} />
                     <label htmlFor="isActive" className="form-label m-0">Campo Activo (visible para usuarios)</label>
                   </div>
 
-                  <div className="flex-between mt-4" style={{ justifyContent: 'flex-end', gap: '12px' }}>
-                    <button type="button" onClick={() => { setIsCreatingVenue(false); setEditingVenue(null); }} className="btn btn-secondary">
-                      Cancelar
-                    </button>
-                    <button type="submit" className="btn btn-primary" disabled={loading}>
+                  <div className="flex-column gap-4 mt-4" style={{ width: '100%' }}>
+                    <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
                       {isCreatingVenue ? 'Crear Campo' : 'Guardar Cambios'}
+                    </button>
+                    <button type="button" onClick={() => { setIsCreatingVenue(false); setEditingVenue(null); }} className="btn btn-secondary btn-block">
+                      Cancelar
                     </button>
                   </div>
                 </form>

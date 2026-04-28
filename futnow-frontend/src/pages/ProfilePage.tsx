@@ -97,7 +97,7 @@ export default function ProfilePage() {
     <div className="page-container" style={{ maxWidth: '900px', margin: '0 auto' }}>
       <h2 className="mb-6">Administración de Perfil</h2>
       
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
+      <div className="grid-responsive">
         
         {/* Columna Read-Only */}
         <div className="flex-column gap-6">

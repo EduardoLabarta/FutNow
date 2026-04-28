@@ -81,7 +81,7 @@ export default function MyMatchesPage() {
         <div className="loading-state">Cargando tus partidos...</div>
       ) : (
         <>
-          <section className="mb-8">
+          <section className="mb-10">
             <h3 className="mb-4" style={{ fontSize: '20px', fontWeight: 600 }}>Resumen de Actividad</h3>
             <div className="grid-responsive" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))' }}>
               
@@ -99,28 +99,28 @@ export default function MyMatchesPage() {
                 <span className="text-muted text-sm mb-2" style={{ fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Cancelados</span>
                 <span className="text-main" style={{ fontSize: '36px', fontWeight: 700, lineHeight: 1 }}>{totalCancelled}</span>
               </div>
-
-              <div className="card" style={{ padding: '20px', margin: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', backgroundColor: 'var(--bg-color)', borderTop: '3px solid var(--warning)', gridColumn: '1 / -1' }}>
-                <span className="text-muted text-sm mb-2" style={{ fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Próximo Partido</span>
-                {nextMatch ? (
-                  <>
-                    <strong className="text-main mb-1" style={{ fontSize: '18px' }}>{nextMatch.title}</strong>
-                    <span className="text-muted text-sm mb-3">
-                      {new Date(nextMatch.scheduled_at).toLocaleString(undefined, { dateStyle: 'full', timeStyle: 'short' })}
-                    </span>
-                    <button onClick={() => navigate(`/matches/${nextMatch.id}`)} className="btn btn-primary" style={{ padding: '6px 16px', fontSize: '14px' }}>
-                      Ver Detalles
-                    </button>
-                  </>
-                ) : (
-                  <span className="text-muted" style={{ fontSize: '16px' }}>No hay próximos partidos programados.</span>
-                )}
-              </div>
-
             </div>
+
+            <div className="card" style={{ padding: '24px', marginTop: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', backgroundColor: 'var(--bg-color)', borderTop: '4px solid var(--warning)', boxShadow: 'var(--shadow-sm)', position: 'relative', overflow: 'hidden' }}>
+              <span className="text-muted text-sm mb-3" style={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Próximo Partido</span>
+              {nextMatch ? (
+                <>
+                  <strong className="text-main mb-2" style={{ fontSize: '22px', letterSpacing: '-0.02em' }}>{nextMatch.title}</strong>
+                  <span className="text-muted mb-4" style={{ fontSize: '15px' }}>
+                    {new Date(nextMatch.scheduled_at).toLocaleString(undefined, { dateStyle: 'full', timeStyle: 'short' })}
+                  </span>
+                  <button onClick={() => navigate(`/matches/${nextMatch.id}`)} className="btn btn-primary" style={{ padding: '10px 24px', fontSize: '15px' }}>
+                    Ver Detalles
+                  </button>
+                </>
+              ) : (
+                <span className="text-muted" style={{ fontSize: '16px', padding: '20px 0' }}>No hay próximos partidos programados.</span>
+              )}
+            </div>
+
           </section>
 
-          <div className="grid-responsive">
+          <div className="grid-responsive" style={{ marginTop: '16px' }}>
           
           <section className="card card-container" style={{ margin: 0, backgroundColor: 'var(--primary-light)', borderColor: 'var(--border-color)' }}>
             <h3 className="card-title text-primary" style={{ borderBottomColor: 'var(--border-color)' }}>Partidos que Organizo</h3>

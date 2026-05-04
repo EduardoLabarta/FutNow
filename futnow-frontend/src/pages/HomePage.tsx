@@ -44,8 +44,7 @@ export default function HomePage() {
 
   return (
     <div className="page-container" style={{ paddingTop: '20px', paddingBottom: '40px', position: 'relative' }}>
-      {/* Ambient Atmospheric Background */}
-      <div className="ambient-bg"></div>
+
 
       <div style={{ position: 'relative', zIndex: 1 }}>
         {isSuspended && (
@@ -55,8 +54,10 @@ export default function HomePage() {
         )}
 
         {/* Hero Section (Two Columns) */}
-        <section className="mb-12" style={{ paddingTop: '20px', paddingBottom: '60px' }}>
-          <div className="hero-grid">
+        <section className="mb-12 hero-section" style={{ position: 'relative', padding: '60px', paddingBottom: '80px', marginBottom: '80px', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+          {/* Ambient Atmospheric Background */}
+          <div className="ambient-bg" style={{ height: '100%' }}></div>
+          <div className="hero-grid" style={{ position: 'relative', zIndex: 1 }}>
             
             {/* Left Column: Messaging */}
             <div className="flex-column" style={{ alignItems: 'flex-start', textAlign: 'left' }}>
@@ -81,10 +82,7 @@ export default function HomePage() {
             {/* Right Column: Visual Composition */}
             <div style={{ position: 'relative', height: '100%', minHeight: '320px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
               
-              {/* Hero Image */}
-              <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', borderRadius: 'var(--radius-lg)', overflow: 'hidden', zIndex: 0, backgroundColor: 'rgba(255,255,255,0.02)' }}>
-                 <img src="/hero-image.jpg" alt="Futbol" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }} /> 
-              </div>
+
               
               {/* Main floating panel */}
               <div className="glass-panel" style={{ padding: '24px', width: '100%', maxWidth: '340px', zIndex: 2, position: 'relative' }}>

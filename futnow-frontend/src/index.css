@@ -402,8 +402,9 @@ h1, h2, h3, h4 {
   top: 0;
   left: 0;
   width: 100%;
-  height: 600px;
-  background: 
+  height: 100%;
+  background-color: #0c0c10;
+  background-image: 
     radial-gradient(circle at 15% 0%, rgba(59, 130, 246, 0.12) 0%, transparent 45%),
     radial-gradient(circle at 85% 10%, rgba(167, 139, 250, 0.08) 0%, transparent 45%);
   pointer-events: none;

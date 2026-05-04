@@ -81,12 +81,9 @@ export default function HomePage() {
             {/* Right Column: Visual Composition */}
             <div style={{ position: 'relative', height: '100%', minHeight: '320px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
               
-              {/* Hueco para la imagen (Placeholder) */}
-              <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', borderRadius: 'var(--radius-lg)', overflow: 'hidden', zIndex: 0, border: '2px dashed rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.02)' }}>
-                 <span className="text-muted text-sm" style={{ padding: '0 20px', textAlign: 'center' }}>[ Hueco para tu imagen aquí ]</span>
-                 {/* Para usar la imagen real, borra el span de arriba y usa esto:
-                 <img src="/tu-imagen.jpg" alt="Futbol" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6 }} /> 
-                 */}
+              {/* Hero Image */}
+              <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', borderRadius: 'var(--radius-lg)', overflow: 'hidden', zIndex: 0, backgroundColor: 'rgba(255,255,255,0.02)' }}>
+                 <img src="/hero-image.jpg" alt="Futbol" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }} /> 
               </div>
               
               {/* Main floating panel */}

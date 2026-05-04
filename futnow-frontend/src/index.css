@@ -408,6 +408,7 @@ h1, h2, h3, h4 {
     radial-gradient(circle at 85% 10%, rgba(167, 139, 250, 0.08) 0%, transparent 45%);
   pointer-events: none;
   z-index: 0;
+  border-radius: var(--radius-lg);
 }
 
 .glass-panel {

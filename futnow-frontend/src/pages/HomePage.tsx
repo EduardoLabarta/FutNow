@@ -121,7 +121,6 @@ export default function HomePage() {
         {/* Stats Quick View */}
         {profile && (
           <section className="mb-12" style={{ marginBottom: '64px' }}>
-            <h3 className="mb-4 text-muted" style={{ fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Tu Perfil</h3>
             <div className="grid-responsive" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
               
               <div className="card flex-center" style={{ margin: 0, padding: '20px', justifyContent: 'flex-start', gap: '16px', borderBottom: '3px solid var(--primary)' }}>

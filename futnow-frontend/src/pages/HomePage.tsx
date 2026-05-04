@@ -44,7 +44,13 @@ export default function HomePage() {
 
   return (
     <div className="page-container" style={{ paddingTop: '20px', paddingBottom: '40px', position: 'relative' }}>
-
+      
+      {/* Global Ambient Backgrounds */}
+      <div className="page-bg-grid"></div>
+      <div className="page-bg-glow">
+        <div className="glow-orb-1"></div>
+        <div className="glow-orb-2"></div>
+      </div>
 
       <div style={{ position: 'relative', zIndex: 1 }}>
         {isSuspended && (

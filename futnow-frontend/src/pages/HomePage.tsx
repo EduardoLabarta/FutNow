@@ -43,7 +43,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="page-container" style={{ paddingTop: '20px', paddingBottom: '40px', position: 'relative' }}>
+    <div className="page-container" style={{ paddingTop: 0, paddingBottom: '40px', position: 'relative' }}>
       
       {/* Global Ambient Backgrounds */}
       <div className="page-bg-grid"></div>
@@ -60,7 +60,7 @@ export default function HomePage() {
         )}
 
         {/* Hero Section (Two Columns) */}
-        <section className="mb-12 hero-section" style={{ position: 'relative', padding: '60px', paddingBottom: '80px', marginBottom: '80px', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+        <section className="mb-12 hero-section" style={{ position: 'relative', padding: '60px', paddingBottom: '80px', marginBottom: '40px', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
           {/* Ambient Atmospheric Background */}
           <div className="ambient-bg" style={{ height: '100%' }}></div>
           <div className="hero-grid" style={{ position: 'relative', zIndex: 1 }}>

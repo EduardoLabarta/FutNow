@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { matchService } from '../services/matchService';
+import { supabase } from '../lib/supabase';
 
 import type { Match } from '../types/match';
 
@@ -14,6 +15,10 @@ export default function HomePage() {
   const [errorStatus, setErrorStatus] = useState('');
 
   const isSuspended = profile?.status === 'SUSPENDED';
+  
+  const avatarUrl = profile?.avatar_path 
+    ? supabase.storage.from('avatars').getPublicUrl(profile.avatar_path).data.publicUrl 
+    : null;
 
   useEffect(() => {
     let isMounted = true;
@@ -96,14 +101,7 @@ export default function HomePage() {
                   </div>
                 </div>
                 
-                <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '16px' }}>
-                  <div className="flex-center" style={{ justifyContent: 'flex-start', gap: '12px' }}>
-                    <div className="icon-box-sm flex-center" style={{ backgroundColor: 'var(--success-bg)', color: 'var(--success)', border: 'none' }}>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                    </div>
-                    <span className="text-muted text-sm">Sistema en línea y operando</span>
-                  </div>
-                </div>
+
               </div>
 
               {/* Decorative back panel (offset) */}
@@ -122,14 +120,18 @@ export default function HomePage() {
 
         {/* Stats Quick View */}
         {profile && (
-          <section className="mb-12">
+          <section className="mb-12" style={{ marginBottom: '64px' }}>
             <h3 className="mb-4 text-muted" style={{ fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Tu Perfil</h3>
             <div className="grid-responsive" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
               
               <div className="card flex-center" style={{ margin: 0, padding: '20px', justifyContent: 'flex-start', gap: '16px', borderBottom: '3px solid var(--primary)' }}>
-                <div className="icon-box">
-                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                </div>
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="Avatar" style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} />
+                ) : (
+                  <div className="icon-box" style={{ borderRadius: '50%', fontWeight: 'bold' }}>
+                    {profile.name ? profile.name.charAt(0).toUpperCase() : user?.email?.charAt(0).toUpperCase() || 'U'}
+                  </div>
+                )}
                 <div className="flex-column gap-1">
                   <span className="text-sm text-muted" style={{ lineHeight: 1 }}>Jugador</span>
                   <span className="font-semibold" style={{ lineHeight: 1 }}>{profile.name || user?.email}</span>

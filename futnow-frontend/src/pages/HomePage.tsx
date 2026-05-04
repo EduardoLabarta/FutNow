@@ -55,7 +55,7 @@ export default function HomePage() {
         )}
 
         {/* Hero Section (Two Columns) */}
-        <section className="mb-12" style={{ paddingTop: '20px' }}>
+        <section className="mb-12" style={{ paddingTop: '20px', paddingBottom: '60px' }}>
           <div className="hero-grid">
             
             {/* Left Column: Messaging */}
@@ -80,6 +80,14 @@ export default function HomePage() {
 
             {/* Right Column: Visual Composition */}
             <div style={{ position: 'relative', height: '100%', minHeight: '320px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+              
+              {/* Hueco para la imagen (Placeholder) */}
+              <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', borderRadius: 'var(--radius-lg)', overflow: 'hidden', zIndex: 0, border: '2px dashed rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.02)' }}>
+                 <span className="text-muted text-sm" style={{ padding: '0 20px', textAlign: 'center' }}>[ Hueco para tu imagen aquí ]</span>
+                 {/* Para usar la imagen real, borra el span de arriba y usa esto:
+                 <img src="/tu-imagen.jpg" alt="Futbol" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6 }} /> 
+                 */}
+              </div>
               
               {/* Main floating panel */}
               <div className="glass-panel" style={{ padding: '24px', width: '100%', maxWidth: '340px', zIndex: 2, position: 'relative' }}>

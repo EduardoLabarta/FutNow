@@ -395,6 +395,70 @@ h1, h2, h3, h4 {
   border-color: #9ca3af;
 }
 
+/* --- UX/UI Global Utilities --- */
+
+.bg-gradient-hero {
+  background: radial-gradient(circle at top, rgba(59, 130, 246, 0.15) 0%, transparent 60%);
+}
+
+.text-gradient {
+  background: linear-gradient(to right, #60a5fa, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.card-hover-up {
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.card-hover-up:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.6);
+  border-color: var(--primary);
+}
+
+.icon-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background-color: var(--primary-light);
+  color: var(--primary);
+}
+
+.icon-box.success {
+  background-color: var(--success-bg);
+  color: var(--success);
+}
+
+.icon-box.warning {
+  background-color: var(--warning-bg);
+  color: var(--warning);
+}
+
+.icon-box-sm {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+}
+
+.hero-section {
+  padding: 60px 24px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  background-color: var(--card-bg);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
 /* --- Responsive Utilities --- */
 
 .grid-responsive {
@@ -422,6 +486,10 @@ h1, h2, h3, h4 {
   h1 { font-size: 24px !important; }
   h2 { font-size: 20px !important; }
   h3 { font-size: 18px !important; }
+  
+  .hero-section {
+    padding: 40px 16px;
+  }
   
   .header-layout {
     padding: 0 16px;

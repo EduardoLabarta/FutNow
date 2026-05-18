@@ -1,11 +1,11 @@
 import { Navigate, Outlet } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 
 export const AdminRoute = () => {
   const { user, profile, loading } = useAuth();
 
   if (loading) {
-    return <div style={{ padding: '40px', fontFamily: 'sans-serif' }}>Verificando autorizaciones de seguridad...</div>;
+    return <div className="loading-state">Verificando autorizaciones de seguridad...</div>;
   }
 
   // Not authenticated or not an admin

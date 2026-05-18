@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
+import { ArrowRight, CalendarClock, CircleX, MapPin, Trophy, UsersRound } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { matchService } from '../services/matchService';
+import { Button, EmptyState, PageHeader, StatCard, StatusBadge } from '../components/ui';
 import type { Match, MatchJoined } from '../types/match';
 
 export default function MyMatchesPage() {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
+  const userId = user?.id;
 
   const [organized, setOrganized] = useState<Match[]>([]);
   const [joined, setJoined] = useState<MatchJoined[]>([]);
@@ -16,18 +19,18 @@ export default function MyMatchesPage() {
   useEffect(() => {
     let isMounted = true;
     const loadData = async () => {
-      if (!user) return;
+      if (!userId) return;
       setLoading(true);
       setErrorMsg('');
 
       const [orgRes, joinRes] = await Promise.all([
-        matchService.getMatchesOrganizedByUser(user.id),
-        matchService.getMatchesJoinedByUser(user.id)
+        matchService.getMatchesOrganizedByUser(userId),
+        matchService.getMatchesJoinedByUser(userId)
       ]);
 
       if (isMounted) {
         if (orgRes.error || joinRes.error) {
-          setErrorMsg('Error cargando información personal de los repositorios.');
+          setErrorMsg('Error cargando tu información deportiva.');
         } else {
           setOrganized(orgRes.data || []);
           setJoined(joinRes.data || []);
@@ -36,162 +39,142 @@ export default function MyMatchesPage() {
       }
     };
     void loadData();
-    return () => { isMounted = false; };
-  }, [user?.id]);
+    return () => {
+      isMounted = false;
+    };
+  }, [userId]);
 
   if (!user || !profile) return <div className="loading-state">Sincronizando identidad...</div>;
 
   const isSuspended = profile.status === 'SUSPENDED';
 
-  // Lógica de resumen
   const totalOrganized = organized.length;
   const totalJoined = joined.length;
-  
-  const cancelledOrganized = organized.filter(m => m.status === 'CANCELLED').length;
-  const cancelledJoined = joined.filter(j => j.matches?.status === 'CANCELLED').length;
-  const totalCancelled = cancelledOrganized + cancelledJoined;
+  const totalCancelled =
+    organized.filter(m => m.status === 'CANCELLED').length +
+    joined.filter(j => j.matches?.status === 'CANCELLED').length;
 
   const now = new Date();
   const upcomingOrganized = organized.filter(m => m.status === 'OPEN' && new Date(m.scheduled_at) > now);
   const upcomingJoinedMatches = joined
     .filter(j => j.matches && j.matches.status === 'OPEN' && new Date(j.matches.scheduled_at) > now)
     .map(j => j.matches as Match);
-    
+
   const upcomingMap = new Map<string, Match>();
   upcomingOrganized.forEach(m => upcomingMap.set(m.id, m));
   upcomingJoinedMatches.forEach(m => upcomingMap.set(m.id, m));
-  
+
   const upcomingMatches = Array.from(upcomingMap.values()).sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime());
   const nextMatch = upcomingMatches.length > 0 ? upcomingMatches[0] : null;
 
+  const renderCompactMatch = (match: Match) => (
+    <article key={match.id} className="compact-item">
+      <div className="icon-box">
+        <CalendarClock size={18} aria-hidden="true" />
+      </div>
+      <div className="compact-item-copy">
+        <div className="compact-item-head">
+          <strong className="text-main">{match.title}</strong>
+          <StatusBadge status={match.status} />
+        </div>
+        <p className="m-0 text-sm">
+          <CalendarClock size={14} aria-hidden="true" />{' '}
+          {new Date(match.scheduled_at).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })}
+        </p>
+        <p className="m-0 text-sm">
+          <MapPin size={14} aria-hidden="true" /> {match.venue_name || match.location}
+        </p>
+        <Button onClick={() => navigate(`/matches/${match.id}`)} rightIcon={<ArrowRight size={16} aria-hidden="true" />} size="sm" variant="secondary">
+          Ver partido
+        </Button>
+      </div>
+    </article>
+  );
+
   return (
-    <div className="page-container" style={{ maxWidth: '1000px', margin: '0 auto' }}>
-      <h2 style={{ marginBottom: '8px', marginTop: '20px' }}>Panel Actividad Deportiva Personal</h2>
-      <p className="text-muted mb-6">Vista de tus partidos organizados y próximos encuentros.</p>
+    <div className="page-container">
+      <PageHeader
+        description="Consulta tus partidos organizados, participaciones y próximos compromisos."
+        eyebrow="Actividad personal"
+        title="Mis partidos"
+      />
 
       {isSuspended && (
-        <div className="alert alert-danger mb-6">
-          <strong>Cuenta Suspendida:</strong> Tu estado actual es SUSPENDIDO. Puedes ver tu historial, pero no puedes organizar ni apuntarte a partidos.
+        <div className="alert alert-danger" role="alert">
+          <strong>Cuenta suspendida:</strong> puedes ver tu historial, pero no organizar ni apuntarte a partidos.
         </div>
       )}
 
-      {errorMsg && <div className="alert alert-danger mb-6">{errorMsg}</div>}
+      {errorMsg && <div className="alert alert-danger" role="alert">{errorMsg}</div>}
 
       {loading ? (
         <div className="loading-state">Cargando tus partidos...</div>
       ) : (
         <>
-          <section className="mb-10">
-            <h3 className="mb-4" style={{ fontSize: '20px', fontWeight: 600 }}>Resumen de Actividad</h3>
-            <div className="grid-responsive" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))' }}>
-              
-              <div className="card" style={{ padding: '20px', margin: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', backgroundColor: 'var(--bg-color)', borderTop: '3px solid var(--primary)' }}>
-                <span className="text-muted text-sm mb-2" style={{ fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Organizados</span>
-                <span className="text-main" style={{ fontSize: '36px', fontWeight: 700, lineHeight: 1 }}>{totalOrganized}</span>
-              </div>
-              
-              <div className="card" style={{ padding: '20px', margin: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', backgroundColor: 'var(--bg-color)', borderTop: '3px solid var(--success)' }}>
-                <span className="text-muted text-sm mb-2" style={{ fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Participaciones</span>
-                <span className="text-main" style={{ fontSize: '36px', fontWeight: 700, lineHeight: 1 }}>{totalJoined}</span>
-              </div>
-              
-              <div className="card" style={{ padding: '20px', margin: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', backgroundColor: 'var(--bg-color)', borderTop: '3px solid var(--danger)' }}>
-                <span className="text-muted text-sm mb-2" style={{ fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Cancelados</span>
-                <span className="text-main" style={{ fontSize: '36px', fontWeight: 700, lineHeight: 1 }}>{totalCancelled}</span>
-              </div>
-            </div>
-
-            <div className="card" style={{ padding: '24px', marginTop: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', backgroundColor: 'var(--bg-color)', borderTop: '4px solid var(--warning)', boxShadow: 'var(--shadow-sm)', position: 'relative', overflow: 'hidden' }}>
-              <span className="text-muted text-sm mb-3" style={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Próximo Partido</span>
-              {nextMatch ? (
-                <>
-                  <strong className="text-main mb-2" style={{ fontSize: '22px', letterSpacing: '-0.02em' }}>{nextMatch.title}</strong>
-                  <span className="text-muted mb-4" style={{ fontSize: '15px' }}>
-                    {new Date(nextMatch.scheduled_at).toLocaleString(undefined, { dateStyle: 'full', timeStyle: 'short' })}
-                  </span>
-                  <button onClick={() => navigate(`/matches/${nextMatch.id}`)} className="btn btn-primary" style={{ padding: '10px 24px', fontSize: '15px' }}>
-                    Ver Detalles
-                  </button>
-                </>
-              ) : (
-                <span className="text-muted" style={{ fontSize: '16px', padding: '20px 0' }}>No hay próximos partidos programados.</span>
-              )}
-            </div>
-
+          <section className="stats-grid mb-8" aria-label="Resumen de actividad">
+            <StatCard icon={<Trophy size={22} aria-hidden="true" />} label="Organizados" value={totalOrganized} />
+            <StatCard icon={<UsersRound size={22} aria-hidden="true" />} label="Participaciones" tone="success" value={totalJoined} />
+            <StatCard icon={<CircleX size={22} aria-hidden="true" />} label="Cancelados" tone="danger" value={totalCancelled} />
           </section>
 
-          <div className="grid-responsive" style={{ marginTop: '16px' }}>
-          
-          <section className="card card-container" style={{ margin: 0, backgroundColor: 'var(--primary-light)', borderColor: 'var(--border-color)' }}>
-            <h3 className="card-title text-primary" style={{ borderBottomColor: 'var(--border-color)' }}>Partidos que Organizo</h3>
-            {organized.length === 0 ? (
-              <div className="flex-column flex-center text-center mt-4 p-4 text-muted border-dashed" style={{ border: '2px dashed var(--border-color)', borderRadius: 'var(--radius-sm)' }}>
-                Todavía no has organizado ningún partido.
+          <section className="card tone-warning">
+            <div className="section-title">
+              <div>
+                <h2>Próximo partido</h2>
+                <p>El siguiente compromiso confirmado en tu calendario.</p>
               </div>
-            ) : (
-              <div className="flex-column gap-4 mt-4">
-                {organized.map(m => (
-                  <div key={m.id} className="card" style={{ margin: 0, padding: '20px' }}>
-                    <div className="flex-between responsive-keep-row mb-4">
-                      <h4 style={{ margin: 0, fontSize: '16px' }}>{m.title}</h4>
-                      <span className={m.status === 'OPEN' ? 'badge badge-success' : 'badge badge-danger'}>{m.status}</span>
-                    </div>
-                    
-                    <div className="flex-column gap-2 text-sm text-muted mb-4">
-                      <div className="flex-center" style={{ justifyContent: 'flex-start', gap: '8px' }}>
-                        <strong className="text-main">Día:</strong> {new Date(m.scheduled_at).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })}
-                      </div>
-                      <div className="flex-center" style={{ justifyContent: 'flex-start', gap: '8px' }}>
-                         <strong className="text-main">Sede:</strong> {m.location}
-                      </div>
-                    </div>
-
-                    <button onClick={() => navigate(`/matches/${m.id}`)} className="btn btn-secondary btn-block">
-                      Ver Partido
-                    </button>
+            </div>
+            {nextMatch ? (
+              <div className="info-row">
+                <CalendarClock size={22} aria-hidden="true" />
+                <div>
+                  <span>{new Date(nextMatch.scheduled_at).toLocaleString(undefined, { dateStyle: 'full', timeStyle: 'short' })}</span>
+                  <strong>{nextMatch.title}</strong>
+                  <div className="mt-4">
+                    <Button onClick={() => navigate(`/matches/${nextMatch.id}`)} rightIcon={<ArrowRight size={16} aria-hidden="true" />} size="sm">
+                      Ver detalles
+                    </Button>
                   </div>
-                ))}
-              </div>
-            )}
-          </section>
-
-          <section className="card card-container" style={{ margin: 0 }}>
-            <h3 className="card-title">Participaciones Confirmadas</h3>
-            {joined.length === 0 ? (
-              <div className="flex-column flex-center text-center mt-4 p-4 text-muted border-dashed" style={{ border: '2px dashed var(--border-color)', borderRadius: 'var(--radius-sm)' }}>
-                Actualmente no estás apuntado a ningún partido.
+                </div>
               </div>
             ) : (
-              <div className="flex-column gap-4 mt-4">
-                {joined.map(j => {
-                   const m = j.matches;
-                   if (!m) return null;
-                   return (
-                      <div key={j.id} className="card" style={{ margin: 0, padding: '20px', backgroundColor: 'var(--bg-color)' }}>
-                        <div className="flex-between responsive-keep-row mb-4">
-                          <h4 style={{ margin: 0, fontSize: '16px' }}>{m.title}</h4>
-                          <span className={m.status === 'OPEN' ? 'badge badge-success' : 'badge badge-danger'}>{m.status}</span>
-                        </div>
-                        
-                        <div className="flex-column gap-2 text-sm text-muted mb-4">
-                          <div className="flex-center" style={{ justifyContent: 'flex-start', gap: '8px' }}>
-                             <strong className="text-main">Día:</strong> {new Date(m.scheduled_at).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })}
-                          </div>
-                          <div className="flex-center" style={{ justifyContent: 'flex-start', gap: '8px' }}>
-                             <strong className="text-main">Sede:</strong> {m.location}
-                          </div>
-                        </div>
-
-                        <button onClick={() => navigate(`/matches/${m.id}`)} className="btn btn-secondary btn-block">
-                          Ver Partido
-                        </button>
-                      </div>
-                   );
-                })}
-              </div>
+              <EmptyState
+                description="No hay próximos partidos programados. Cuando confirmes una plaza, aparecerá aquí."
+                icon={<CalendarClock size={26} aria-hidden="true" />}
+                title="Sin próximos partidos"
+              />
             )}
           </section>
-        </div>
+
+          <div className="content-grid">
+            <section className="card">
+              <h2 className="card-title">Partidos que organizo</h2>
+              {organized.length === 0 ? (
+                <EmptyState
+                  description="Todavía no has organizado ningún partido."
+                  icon={<Trophy size={26} aria-hidden="true" />}
+                  title="Sin convocatorias propias"
+                />
+              ) : (
+                <div className="compact-list">{organized.map(renderCompactMatch)}</div>
+              )}
+            </section>
+
+            <section className="card">
+              <h2 className="card-title">Participaciones confirmadas</h2>
+              {joined.length === 0 ? (
+                <EmptyState
+                  description="Aún no estás apuntado a ningún partido."
+                  icon={<UsersRound size={26} aria-hidden="true" />}
+                  title="Sin participaciones"
+                />
+              ) : (
+                <div className="compact-list">
+                  {joined.map(j => (j.matches ? renderCompactMatch(j.matches) : null))}
+                </div>
+              )}
+            </section>
+          </div>
         </>
       )}
     </div>

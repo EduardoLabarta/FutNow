@@ -1,12 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { ArrowLeft, CalendarClock, MapPinned, Navigation, ShieldAlert, UserMinus, UserPlus, UsersRound } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+import { useAuth } from '../context/useAuth';
 import { matchService } from '../services/matchService';
 import { supabase } from '../lib/supabase';
-import type { Match, MatchParticipant } from '../types/match';
 import { venueService } from '../services/venueService';
+import { Button, EmptyState, PageHeader, StatusBadge } from '../components/ui';
+import type { Match, MatchParticipant } from '../types/match';
 import type { Venue } from '../types/venue';
-import { MapContainer, TileLayer, Marker } from 'react-leaflet';
 
 export default function MatchDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -20,13 +22,14 @@ export default function MatchDetailPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [message, setMessage] = useState('');
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     if (!id) return;
-    setLoading(true); setMessage('');
-    
+    setLoading(true);
+    setMessage('');
+
     const [matchRes, partsRes] = await Promise.all([
       matchService.getMatchById(id),
-      matchService.getConfirmedParticipants(id)
+      matchService.getConfirmedParticipants(id),
     ]);
 
     if (matchRes.error || !matchRes.data) {
@@ -35,35 +38,53 @@ export default function MatchDetailPage() {
       setVenue(null);
       setMessage('Error al cargar datos. El partido no existe o ha sido cancelado.');
       setLoading(false);
-      return; 
-    } 
+      return;
+    }
 
     setMatch(matchRes.data);
     if (!partsRes.error) setParticipants(partsRes.data || []);
-    
+
     if (matchRes.data.venue_id) {
       const venueRes = await venueService.getVenueById(matchRes.data.venue_id);
       if (!venueRes.error && venueRes.data) {
         setVenue(venueRes.data);
       }
     }
-    
+
     setLoading(false);
-  };
+  }, [id]);
 
-  useEffect(() => { void loadData(); }, [id]);
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      void loadData();
+    }, 0);
 
-  if (loading) return <div className="page-container"><div className="loading-state">Sincronizando Detalles Técnicos...</div></div>;
-  if (!match) return <div className="page-container"><div className="alert alert-danger">{message}</div><button className="btn btn-secondary" onClick={() => navigate(-1)}>Retroceder</button></div>;
+    return () => window.clearTimeout(timer);
+  }, [loadData]);
+
+  if (loading) return <div className="loading-state">Sincronizando detalles del partido...</div>;
+
+  if (!match) {
+    return (
+      <div className="page-narrow">
+        <EmptyState
+          action={<Button leftIcon={<ArrowLeft size={17} aria-hidden="true" />} onClick={() => navigate(-1)} variant="secondary">Volver</Button>}
+          description={message}
+          icon={<ShieldAlert size={26} aria-hidden="true" />}
+          title="Partido no disponible"
+        />
+      </div>
+    );
+  }
 
   const isSuspended = profile?.status === 'SUSPENDED';
   const isJoined = participants.some(p => p.user_id === user?.id);
   const isFuture = new Date(match.scheduled_at) > new Date();
   const isOpen = match.status === 'OPEN';
   const isFull = participants.length >= match.max_players;
-  
+
   const canJoin = isOpen && isFuture && !isJoined && !isFull && !isSuspended;
-  const canLeave = isJoined && !isSuspended; 
+  const canLeave = isJoined && !isSuspended;
   const canAdminCancel = (profile?.role === 'ADMIN' || user?.id === match.organizer_id) && !isSuspended;
 
   const handleJoin = async () => {
@@ -72,7 +93,10 @@ export default function MatchDetailPage() {
     const { error } = await matchService.joinMatch(id);
     setActionLoading(false);
     if (error) setMessage(`Error al unirse: ${error.message}`);
-    else { setMessage(''); void loadData(); }
+    else {
+      setMessage('');
+      void loadData();
+    }
   };
 
   const handleLeave = async () => {
@@ -81,174 +105,173 @@ export default function MatchDetailPage() {
     const { error } = await matchService.leaveMatch(id);
     setActionLoading(false);
     if (error) setMessage(`Error al salir del partido: ${error.message}`);
-    else { setMessage(''); void loadData(); }
+    else {
+      setMessage('');
+      void loadData();
+    }
   };
 
   const handleCancel = async () => {
     if (!id || isSuspended) return;
-    if (!window.confirm("¿Seguro que deseas cancelar este partido?")) return;
+    if (!window.confirm('¿Seguro que deseas cancelar este partido?')) return;
     setActionLoading(true);
     const { error } = await matchService.cancelMatch(id);
     setActionLoading(false);
     if (error) setMessage(`Error al cancelar: ${error.message}`);
-    else { alert("Partido cancelado de forma exitosa."); void loadData(); }
+    else {
+      setMessage('Partido cancelado de forma exitosa.');
+      void loadData();
+    }
   };
 
+  const mapsUrl =
+    match.venue_lat != null && match.venue_lng != null
+      ? `https://www.google.com/maps/dir/?api=1&destination=${match.venue_lat},${match.venue_lng}`
+      : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(match.venue_address || match.location)}`;
+
   return (
-    <div className="page-container" style={{ maxWidth: '1000px', margin: '0 auto' }}>
-      
+    <div className="page-container">
       {isSuspended && (
-        <div className="alert alert-danger mb-6">
-          <strong>Cuenta Suspendida:</strong> No tienes permisos para participar ni organizar partidos.
+        <div className="alert alert-danger" role="alert">
+          <strong>Cuenta suspendida:</strong> no tienes permisos para participar ni organizar partidos.
         </div>
       )}
 
-      {message && <div className="alert alert-info mb-6">{message}</div>}
-      
-      <div className="flex-between mb-6">
-        <div>
-          <button className="btn btn-secondary mb-4" onClick={() => navigate(-1)} style={{ padding: '6px 12px', fontSize: '13px' }}>
-            &larr; Volver
-          </button>
-          <h2 style={{ margin: 0, fontSize: '28px' }}>{match.title}</h2>
-        </div>
-        <span className={match.status === 'OPEN' ? 'badge badge-success' : 'badge badge-danger'} style={{ fontSize: '14px', padding: '6px 16px' }}>
-          {match.status}
-        </span>
-      </div>
+      {message && <div className="alert alert-info" role="status">{message}</div>}
 
-      <div className="grid-responsive">
-        
-        {/* Detalles del Partido */}
-        <div className="card" style={{ borderTop: match.status === 'OPEN' ? '6px solid var(--success)' : '6px solid var(--danger)', margin: 0, boxShadow: match.status === 'OPEN' ? '0 0 20px rgba(16, 185, 129, 0.1)' : '0 0 20px rgba(244, 63, 94, 0.1)' }}>
-          <h3 className="card-title">Información General</h3>
-          
-          <div className="flex-column gap-6 mt-4">
-            <div>
-              <strong className="text-muted text-sm block mb-2">Fecha y Hora</strong>
-              <div className="text-main font-semibold" style={{ fontSize: '18px' }}>
-                {new Date(match.scheduled_at).toLocaleString(undefined, { dateStyle: 'full', timeStyle: 'short' })}
+      <PageHeader
+        actions={<StatusBadge status={match.status} />}
+        description="Revisa sede, hora y alineación antes de confirmar tu asistencia."
+        eyebrow="Detalle del partido"
+        meta={
+          <Button leftIcon={<ArrowLeft size={17} aria-hidden="true" />} onClick={() => navigate(-1)} size="sm" variant="secondary">
+            Volver
+          </Button>
+        }
+        title={match.title}
+      />
+
+      <div className="content-grid">
+        <section className={`card ${match.status === 'OPEN' ? 'tone-success' : 'tone-danger'}`}>
+          <h2 className="card-title">
+            <CalendarClock size={20} aria-hidden="true" />
+            Información general
+          </h2>
+
+          <div className="info-list">
+            <div className="info-row">
+              <CalendarClock size={20} aria-hidden="true" />
+              <div>
+                <span>Fecha y hora</span>
+                <strong>{new Date(match.scheduled_at).toLocaleString(undefined, { dateStyle: 'full', timeStyle: 'short' })}</strong>
               </div>
             </div>
 
-            <div>
-              <strong className="text-muted text-sm block mb-2">Lugar / Sede</strong>
-              {match.venue_name ? (
-                <div>
-                  <div className="text-main font-semibold" style={{ fontSize: '18px' }}>
-                    {match.venue_name}
-                  </div>
-                  {match.venue_address && (
-                    <div className="text-muted" style={{ fontSize: '14px', marginTop: '4px' }}>
-                      {match.venue_address}
-                    </div>
-                  )}
-                  {venue && (
-                    <div className="text-muted" style={{ fontSize: '14px', marginTop: '4px' }}>
-                      <span style={{ color: 'var(--primary)' }}>{
-                        venue.pitch_type === 'FOOTBALL_11' ? 'Fútbol 11' :
-                        venue.pitch_type === 'FOOTBALL_7' ? 'Fútbol 7' :
-                        venue.pitch_type === 'FUTSAL' ? 'Fútbol Sala' : venue.pitch_type
-                      }</span>
-                      <span> ({venue.players_per_team} vs {venue.players_per_team})</span>
-                    </div>
-                  )}
-                  {match.venue_lat != null && match.venue_lng != null && (
-                    <div style={{ height: '200px', width: '100%', marginTop: '16px', borderRadius: 'var(--radius-md)', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
-                      <MapContainer 
-                        center={[match.venue_lat, match.venue_lng]} 
-                        zoom={15} 
-                        style={{ height: '100%', width: '100%' }}
-                        scrollWheelZoom={false}
-                      >
-                        <TileLayer
-                          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        />
-                        <Marker position={[match.venue_lat, match.venue_lng]} />
-                      </MapContainer>
-                    </div>
-                  )}
-                  
-                </div>
-              ) : (
-                <div className="text-main font-semibold" style={{ fontSize: '18px' }}>{match.location}</div>
-              )}
-              <a
-                href={
-                  match.venue_lat != null && match.venue_lng != null
-                    ? `https://www.google.com/maps/dir/?api=1&destination=${match.venue_lat},${match.venue_lng}`
-                    : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(match.venue_address || match.location)}`
-                }
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-secondary"
-                style={{ marginTop: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', padding: '8px 16px', textDecoration: 'none' }}
-              >
-                Cómo llegar
-              </a>
-            </div>
-
-            <div>
-              <strong className="text-muted text-sm block mb-2">Aforo del Encuentro</strong>
-              <div className="flex-center" style={{ justifyContent: 'flex-start', gap: '12px' }}>
-                <span style={{ fontSize: '18px', color: isFull ? 'var(--danger)' : 'var(--text-main)', fontWeight: '600' }}>
-                  {participants.length} / {match.max_players} jugadores confirmados
-                </span>
-                {isFull && <span className="badge badge-danger">COMPLETO</span>}
+            <div className="info-row">
+              <MapPinned size={20} aria-hidden="true" />
+              <div>
+                <span>Lugar / sede</span>
+                <strong>{match.venue_name || match.location}</strong>
+                {match.venue_address && <p className="m-0 mt-2">{match.venue_address}</p>}
+                {venue && (
+                  <p className="m-0 mt-2">
+                    {venue.pitch_type === 'FOOTBALL_11' ? 'Fútbol 11' : venue.pitch_type === 'FOOTBALL_7' ? 'Fútbol 7' : 'Fútbol Sala'} · {venue.players_per_team} vs {venue.players_per_team}
+                  </p>
+                )}
               </div>
             </div>
-            
-            {!isSuspended && (
-               <div className="mt-4 pt-4" style={{ borderTop: '1px solid var(--border-color)' }}>
-                 <div className="flex-column gap-4">
-                   {canJoin && <button disabled={actionLoading} onClick={() => void handleJoin()} className="btn btn-primary btn-block">Confirmar Asistencia</button>}
-                   {canLeave && <button disabled={actionLoading} onClick={() => void handleLeave()} className="btn btn-secondary btn-block">Anular mi Plaza</button>}
-                   {canAdminCancel && match.status === 'OPEN' && <button disabled={actionLoading} onClick={() => void handleCancel()} className="btn btn-danger btn-block mt-2">Suspender Partido</button>}
-                 </div>
-               </div>
+
+            {match.venue_lat != null && match.venue_lng != null && (
+              <div className="map-frame map-frame-sm">
+                <MapContainer center={[match.venue_lat, match.venue_lng]} zoom={15} className="leaflet-map" scrollWheelZoom={false}>
+                  <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+                  <Marker position={[match.venue_lat, match.venue_lng]} />
+                </MapContainer>
+              </div>
             )}
-          </div>
-        </div>
 
-        {/* Lista de Participantes */}
-        <div className="card" style={{ margin: 0 }}>
-          <h3 className="card-title text-main">Alineación Confirmada</h3>
-          {participants.length === 0 ? (
-            <div className="flex-column flex-center text-center" style={{ padding: '40px 0' }}>
-              <div style={{ fontSize: '32px', marginBottom: '12px', opacity: 0.5 }}></div>
-              <p className="text-muted m-0">Aún no hay inscritos en este partido.</p>
+            <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-md">
+              <Navigation size={16} aria-hidden="true" />
+              Cómo llegar
+            </a>
+
+            <div className="info-row">
+              <UsersRound size={20} aria-hidden="true" />
+              <div>
+                <span>Aforo del encuentro</span>
+                <strong>{participants.length} / {match.max_players} jugadores confirmados</strong>
+                {isFull && <div className="mt-2"><StatusBadge label="Completo" tone="danger" /></div>}
+              </div>
             </div>
-          ) : (
-            <div className="flex-column gap-3 mt-4">
-              {participants.map(p => (
-                <div key={p.id} className="flex-center" style={{ justifyContent: 'flex-start', gap: '16px', padding: '14px 20px', backgroundColor: 'rgba(39, 39, 42, 0.4)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
-                  {p.profiles?.avatar_path ? (
-                    <img 
-                      src={supabase.storage.from('avatars').getPublicUrl(p.profiles.avatar_path).data.publicUrl} 
-                      alt="Avatar" 
-                      style={{ width: '42px', height: '42px', borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--primary)' }} 
-                    />
-                  ) : (
-                    <div className="flex-center font-semibold" style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: 'var(--primary-light)', color: 'var(--primary)', fontSize: '18px', border: '1px solid var(--primary)', minWidth: '42px' }}>
-                      {p.profiles?.name.charAt(0).toUpperCase() || '?'}
-                    </div>
-                  )}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div className="font-semibold text-main" style={{ fontSize: '15px' }}>
-                      {p.profiles?.name || 'Usuario Anónimo'}
-                    </div>
-                    <div className="text-sm text-muted" style={{ marginTop: '2px' }}>
-                      {p.profiles?.preferred_position || 'Sin posición'}
-                      {p.user_id === user?.id && <span style={{ color: 'var(--primary)', fontWeight: 500, marginLeft: '8px' }}>· Tú</span>}
-                    </div>
-                  </div>
-                </div>
-              ))}
+          </div>
+
+          {!isSuspended && (
+            <div className="form-actions">
+              {canJoin && (
+                <Button disabled={actionLoading} fullWidth leftIcon={<UserPlus size={17} aria-hidden="true" />} onClick={() => void handleJoin()}>
+                  Confirmar asistencia
+                </Button>
+              )}
+              {canLeave && (
+                <Button disabled={actionLoading} fullWidth leftIcon={<UserMinus size={17} aria-hidden="true" />} onClick={() => void handleLeave()} variant="secondary">
+                  Anular mi plaza
+                </Button>
+              )}
+              {canAdminCancel && match.status === 'OPEN' && (
+                <Button disabled={actionLoading} fullWidth leftIcon={<ShieldAlert size={17} aria-hidden="true" />} onClick={() => void handleCancel()} variant="danger">
+                  Suspender partido
+                </Button>
+              )}
             </div>
           )}
-        </div>
+        </section>
 
+        <section className="card">
+          <h2 className="card-title">
+            <UsersRound size={20} aria-hidden="true" />
+            Alineación confirmada
+          </h2>
+
+          {participants.length === 0 ? (
+            <EmptyState
+              description="Aún no hay inscritos. La convocatoria está lista para recibir jugadores."
+              icon={<UsersRound size={26} aria-hidden="true" />}
+              title="Sin jugadores confirmados"
+            />
+          ) : (
+            <div className="participant-list">
+              {participants.map(p => {
+                const name = p.profiles?.name || 'Usuario anónimo';
+                const avatarPath = p.profiles?.avatar_path;
+                return (
+                  <article key={p.id} className="participant-item">
+                    {avatarPath ? (
+                      <img
+                        src={supabase.storage.from('avatars').getPublicUrl(avatarPath).data.publicUrl}
+                        alt=""
+                        className="avatar"
+                      />
+                    ) : (
+                      <div className="avatar-placeholder" aria-hidden="true">
+                        {name.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <div>
+                      <strong className="text-main">{name}</strong>
+                      <p className="m-0 text-sm">
+                        {p.profiles?.preferred_position || 'Sin posición'}
+                        {p.user_id === user?.id && <span className="text-primary"> · Tú</span>}
+                      </p>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </section>
       </div>
     </div>
   );

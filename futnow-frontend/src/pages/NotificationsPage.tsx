@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type KeyboardEvent, type MouseEvent } from 'react';
+import { Bell, CheckCheck, MailOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { notificationService } from '../services/notificationService';
+import { Button, EmptyState, PageHeader, StatusBadge } from '../components/ui';
 import type { AppNotification } from '../types/notification';
 
 export default function NotificationsPage() {
@@ -8,18 +10,22 @@ export default function NotificationsPage() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const loadNotifications = async () => {
+  const loadNotifications = useCallback(async () => {
     setLoading(true);
     const { data } = await notificationService.getNotifications();
     if (data) setNotifications(data);
     setLoading(false);
-  };
-
-  useEffect(() => {
-    void loadNotifications();
   }, []);
 
-  const handleMarkAsRead = async (id: string, e: React.MouseEvent) => {
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      void loadNotifications();
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [loadNotifications]);
+
+  const handleMarkAsRead = async (id: string, e: MouseEvent) => {
     e.stopPropagation();
     await notificationService.markAsRead(id);
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
@@ -37,71 +43,75 @@ export default function NotificationsPage() {
     if (notif.related_match_id) {
       navigate(`/matches/${notif.related_match_id}`);
     } else {
-      // Just update local state if no navigation
       setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, is_read: true } : n));
     }
   };
 
-  if (loading) return <div className="page-container"><div className="loading-state">Cargando notificaciones...</div></div>;
+  const handleNotificationKey = (e: KeyboardEvent<HTMLElement>, notif: AppNotification) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      void handleNotificationClick(notif);
+    }
+  };
+
+  if (loading) return <div className="loading-state">Cargando notificaciones...</div>;
 
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
   return (
-    <div className="page-container" style={{ maxWidth: '800px', margin: '0 auto' }}>
-      <div className="flex-between mb-6">
-        <h2 style={{ margin: 0, fontSize: '28px' }}>Notificaciones</h2>
-        {unreadCount > 0 && (
-          <button onClick={() => void handleMarkAllAsRead()} className="btn btn-secondary" style={{ fontSize: '13px', padding: '6px 12px' }}>
-            Marcar todas como leídas
-          </button>
-        )}
-      </div>
+    <div className="page-narrow">
+      <PageHeader
+        actions={
+          unreadCount > 0 && (
+            <Button leftIcon={<CheckCheck size={17} aria-hidden="true" />} onClick={() => void handleMarkAllAsRead()} size="sm" variant="secondary">
+              Marcar todas como leídas
+            </Button>
+          )
+        }
+        description="Avisos de actividad, plazas y cambios importantes en tus convocatorias."
+        eyebrow="Centro de avisos"
+        meta={unreadCount > 0 && <StatusBadge label={`${unreadCount} sin leer`} tone="info" />}
+        title="Notificaciones"
+      />
 
       {notifications.length === 0 ? (
-        <div className="card text-center" style={{ padding: '40px 20px' }}>
-          <p className="text-muted m-0">No tienes ninguna notificación.</p>
-        </div>
+        <EmptyState
+          description="Cuando haya cambios en tus partidos, los verás aquí."
+          icon={<Bell size={26} aria-hidden="true" />}
+          title="No tienes notificaciones"
+        />
       ) : (
-        <div className="flex-column gap-3">
+        <div className="notification-list">
           {notifications.map(notif => (
-            <div 
-              key={notif.id} 
-              className="card" 
+            <article
+              key={notif.id}
+              className={`notification-item ${notif.is_read ? 'is-read' : 'is-unread'}`}
               onClick={() => void handleNotificationClick(notif)}
-              style={{ 
-                margin: 0, 
-                padding: '16px 20px', 
-                cursor: notif.related_match_id ? 'pointer' : 'default',
-                borderLeft: notif.is_read ? '4px solid transparent' : '4px solid var(--primary)',
-                backgroundColor: notif.is_read ? 'rgba(39, 39, 42, 0.2)' : 'rgba(39, 39, 42, 0.6)',
-                transition: 'all 0.2s ease',
-              }}
+              onKeyDown={e => handleNotificationKey(e, notif)}
+              role="button"
+              tabIndex={0}
             >
-              <div className="flex-between" style={{ alignItems: 'flex-start', gap: '16px' }}>
-                <div style={{ flex: 1 }}>
-                  <div className="flex-center" style={{ justifyContent: 'flex-start', gap: '8px', marginBottom: '4px' }}>
-                    <strong className="text-main" style={{ fontSize: '15px' }}>{notif.title}</strong>
-                    {!notif.is_read && <span className="badge" style={{ backgroundColor: 'var(--primary)', color: 'white', padding: '2px 6px', fontSize: '10px' }}>NUEVA</span>}
-                  </div>
-                  <p className="text-muted m-0" style={{ fontSize: '14px', lineHeight: '1.5' }}>{notif.message}</p>
-                  <div className="text-muted mt-2" style={{ fontSize: '12px' }}>
-                    {new Date(notif.created_at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}
-                  </div>
-                </div>
-                
-                <div className="flex-column gap-2" style={{ alignItems: 'flex-end' }}>
-                  {!notif.is_read && (
-                    <button 
-                      onClick={(e) => void handleMarkAsRead(notif.id, e)}
-                      className="btn btn-secondary" 
-                      style={{ padding: '4px 8px', fontSize: '12px', background: 'transparent', border: 'none', color: 'var(--primary)', textDecoration: 'underline' }}
-                    >
-                      Marcar leída
-                    </button>
-                  )}
-                </div>
+              <div className="icon-box">
+                <MailOpen size={18} aria-hidden="true" />
               </div>
-            </div>
+
+              <div className="notification-copy">
+                <div className="notification-head">
+                  <strong className="text-main">{notif.title}</strong>
+                  {!notif.is_read && <StatusBadge label="Nueva" tone="success" />}
+                </div>
+                <p className="m-0 text-sm">{notif.message}</p>
+                <span className="text-muted text-sm">
+                  {new Date(notif.created_at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}
+                </span>
+              </div>
+
+              {!notif.is_read && (
+                <Button onClick={e => void handleMarkAsRead(notif.id, e)} size="sm" variant="ghost">
+                  Marcar leída
+                </Button>
+              )}
+            </article>
           ))}
         </div>
       )}

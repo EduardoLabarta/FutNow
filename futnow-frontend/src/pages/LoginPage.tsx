@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import { useState, type FormEvent } from 'react';
+import { LockKeyhole, Mail } from 'lucide-react';
 import { useNavigate, Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { authService } from '../services/authService';
+import { Button } from '../components/ui';
 import logo from '../assets/logo.png';
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const { session, loading } = useAuth();
-  
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -15,7 +17,7 @@ export default function LoginPage() {
   if (loading) return <div className="loading-state">Cargando...</div>;
   if (session) return <Navigate to="/" replace />;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
     const { error } = await authService.signIn(email, password);
@@ -30,68 +32,79 @@ export default function LoginPage() {
 
   return (
     <div className="auth-container">
-      <div className="auth-card">
-        <div className="flex-center" style={{ marginBottom: '32px' }}>
-          <img src={logo} alt="FutNow" style={{ width: '300px', height: 'auto' }} />
+      <aside className="auth-visual" aria-hidden="true">
+        <div className="auth-visual-card">
+          <span className="eyebrow">FutNow</span>
+          <h1>Organiza el próximo partido sin ruido.</h1>
+          <p>Encuentra jugadores, confirma plazas y mantén tus convocatorias bajo control desde una experiencia clara y rápida.</p>
         </div>
-        
-        <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '15px', fontWeight: 400, margin: '0 0 28px 0', lineHeight: 1.5 }}>
-          Bienvenido de vuelta. Introduce tus credenciales para acceder.
-        </p>
-        
-        {errorMsg && <div className="alert alert-danger">{errorMsg}</div>}
+      </aside>
 
-        <form onSubmit={handleSubmit} className="flex-column gap-4">
-          <div className="form-group">
-            <label>Correo Electrónico</label>
-            <input 
-              className="form-control" 
-              type="email" 
-              placeholder="tu@email.com" 
-              required 
-              value={email} 
-              onChange={e => setEmail(e.target.value)} 
-            />
-          </div>
-          <div className="form-group">
-            <label>Contraseña</label>
-            <input 
-              className="form-control" 
-              type="password" 
-              placeholder="••••••••" 
-              required 
-              value={password} 
-              onChange={e => setPassword(e.target.value)} 
-            />
-          </div>
-          <button type="submit" className="btn btn-primary btn-block" style={{ marginTop: '8px', padding: '14px 24px', fontSize: '15px' }}>
-            Iniciar Sesión
-          </button>
+      <main className="auth-panel">
+        <section className="auth-card" aria-labelledby="login-title">
+          <img src={logo} alt="FutNow" className="auth-logo" />
+          <h1 id="login-title" className="sr-only">Iniciar sesión en FutNow</h1>
+          <p className="auth-subtitle">Bienvenido de vuelta. Entra para gestionar tus partidos.</p>
 
-          <div className="auth-divider">
-            <span>o</span>
-          </div>
+          {errorMsg && <div className="alert alert-danger" role="alert">{errorMsg}</div>}
 
-          <button 
-            type="button" 
-            onClick={handleGoogleLogin} 
-            className="btn btn-block flex-center btn-google" 
-          >
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style={{ width: '18px', height: '18px' }} />
-            Continuar con Google
-          </button>
-        </form>
-        
-        <p style={{ textAlign: 'center', margin: '32px 0 0 0', fontSize: '14px', color: 'var(--text-muted)' }}>
-          ¿No tienes cuenta?{' '}
-          <span 
-            onClick={() => navigate('/register')} 
-            style={{ color: 'var(--primary)', cursor: 'pointer', fontWeight: 600 }}
-          >
-            Regístrate
-          </span>
-        </p>
-      </div>
+          <form onSubmit={handleSubmit} className="flex-column gap-4">
+            <div className="form-group mb-0">
+              <label htmlFor="login-email">Correo electrónico</label>
+              <div className="info-row">
+                <Mail size={18} aria-hidden="true" />
+                <input
+                  id="login-email"
+                  autoComplete="email"
+                  className="form-control"
+                  type="email"
+                  placeholder="tu@email.com"
+                  required
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="form-group mb-0">
+              <label htmlFor="login-password">Contraseña</label>
+              <div className="info-row">
+                <LockKeyhole size={18} aria-hidden="true" />
+                <input
+                  id="login-password"
+                  autoComplete="current-password"
+                  className="form-control"
+                  type="password"
+                  placeholder="Mínimo 6 caracteres"
+                  required
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <Button fullWidth size="lg" type="submit">
+              Iniciar sesión
+            </Button>
+
+            <div className="auth-divider">
+              <span>o</span>
+            </div>
+
+            <Button className="btn-google" fullWidth onClick={handleGoogleLogin} variant="secondary">
+              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" width="18" height="18" />
+              Continuar con Google
+            </Button>
+          </form>
+
+          <p className="auth-footnote">
+            ¿No tienes cuenta?{' '}
+            <button className="auth-link" onClick={() => navigate('/register')} type="button">
+              Regístrate
+            </button>
+          </p>
+        </section>
+      </main>
     </div>
   );
 }

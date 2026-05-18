@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { Bell, Home, LogOut, ShieldCheck, UserRound, UsersRound } from 'lucide-react';
 import { Outlet, useNavigate, NavLink, Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/useAuth';
 import { notificationService } from '../../services/notificationService';
+import { Button, IconButton } from '../ui';
 import logo from '../../assets/logo.png';
 
 export const AppLayout = () => {
@@ -18,65 +20,99 @@ export const AppLayout = () => {
     }
   }, [user, location.pathname]);
 
+  const navItems = useMemo(() => {
+    const items = [
+      { to: '/', label: 'Inicio', icon: Home },
+      { to: '/my-matches', label: 'Mis partidos', icon: UsersRound },
+      { to: '/profile', label: 'Perfil', icon: UserRound },
+      { to: '/notifications', label: 'Avisos', icon: Bell, count: unreadCount },
+    ];
+
+    if (profile?.role === 'ADMIN') {
+      items.push({ to: '/admin', label: 'Admin', icon: ShieldCheck });
+    }
+
+    return items;
+  }, [profile?.role, unreadCount]);
+
   const handleSignOut = async () => {
     await signOut();
     navigate('/login');
   };
 
+  const renderNavLink = (item: (typeof navItems)[number]) => {
+    const Icon = item.icon;
+    const count = 'count' in item ? item.count ?? 0 : 0;
+
+    return (
+      <NavLink
+        key={item.to}
+        to={item.to}
+        className={({ isActive }) =>
+          [
+            'nav-link',
+            isActive ? 'active' : '',
+            item.to === '/admin' ? 'nav-link-admin' : '',
+            item.to === '/notifications' ? 'notification-link' : '',
+          ]
+            .filter(Boolean)
+            .join(' ')
+        }
+      >
+        <Icon size={18} aria-hidden="true" />
+        <span>{item.label}</span>
+        {count > 0 && (
+          <span className="notification-count" aria-label={`${count} notificaciones sin leer`}>
+            {count > 99 ? '99+' : count}
+          </span>
+        )}
+      </NavLink>
+    );
+  };
+
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="app-shell">
       <header className="header-layout">
-        <Link to="/" className="header-brand" style={{ display: 'flex', alignItems: 'center' }}>
-          <img src={logo} alt="FutNow" style={{ height: '80px', width: 'auto' }} />
+        <Link to="/" className="header-brand" aria-label="Ir al inicio de FutNow">
+          <img src={logo} alt="FutNow" className="brand-logo" />
         </Link>
-        
+
+        {user && profile && <nav className="header-nav" aria-label="Navegación principal">{navItems.map(renderNavLink)}</nav>}
+
         {user && profile && (
-          <nav className="header-nav">
-            <NavLink to="/">Inicio</NavLink>
-            <NavLink to="/my-matches">Mis Partidos</NavLink>
-            <NavLink to="/profile">Perfil</NavLink>
-            {profile.role === 'ADMIN' && (
-              <NavLink to="/admin" style={{ color: 'var(--warning)', fontWeight: 600 }}>Admin</NavLink>
-            )}
-            
-            <Link to="/notifications" style={{ position: 'relative', display: 'flex', alignItems: 'center', marginLeft: '8px', textDecoration: 'none', color: 'var(--text-main)' }}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-main)', opacity: 0.8 }}>
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-              </svg>
+          <div className="header-actions">
+            <IconButton
+              aria-label="Ver notificaciones"
+              className="notification-link"
+              onClick={() => navigate('/notifications')}
+              variant="secondary"
+            >
+              <Bell size={20} aria-hidden="true" />
               {unreadCount > 0 && (
-                <span style={{
-                  position: 'absolute',
-                  top: '-5px',
-                  right: '-10px',
-                  backgroundColor: 'var(--primary)',
-                  color: 'white',
-                  borderRadius: '50%',
-                  padding: '2px 6px',
-                  fontSize: '10px',
-                  fontWeight: 'bold'
-                }}>
+                <span className="notification-count" aria-label={`${unreadCount} notificaciones sin leer`}>
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
               )}
-            </Link>
-            <button 
+            </IconButton>
+            <Button
+              leftIcon={<LogOut size={16} aria-hidden="true" />}
               onClick={() => void handleSignOut()}
-              className="btn btn-secondary" style={{ marginLeft: '12px', padding: '6px 12px', fontSize: '13px' }}
+              size="sm"
+              variant="secondary"
             >
               Salir
-            </button>
-          </nav>
+            </Button>
+          </div>
         )}
       </header>
 
-      <main style={{ flex: 1, padding: '64px 24px 40px', maxWidth: '1100px', margin: '0 auto', width: '100%' }}>
+      <main className="app-main">
         <Outlet />
       </main>
 
-      <footer style={{ textAlign: 'center', padding: '32px 24px', color: 'var(--text-light)', fontSize: '13px', borderTop: '1px solid var(--border-color)', backgroundColor: 'var(--card-bg)' }}>
-        &copy; {new Date().getFullYear()} FutNow
-      </footer>
+      {user && profile && <nav className="bottom-nav" aria-label="Navegación móvil">{navItems.map(renderNavLink)}</nav>}
+
+      <footer className="app-footer">&copy; {new Date().getFullYear()} FutNow</footer>
     </div>
   );
 };
